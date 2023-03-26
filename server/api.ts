@@ -1,7 +1,7 @@
-var sugarFactory = require("./databaseop/sugarFactory");
-var center = require("./databaseop/Centers");
-var Tests=require("./databaseop/TestFile");
-var state=require("./databaseop/State");
+var signIn = require("./databaseop/signIn");
+var stateMaster = require("./databaseop/stateMaster");
+var companyMaster = require("./databaseop/companyMaster");
+var roleMaster = require("./databaseop/roleMaster");
 //------------------------------------------------------------------------------------------------------
 
 var express = require("express");
@@ -20,127 +20,72 @@ router.use((request, response, next) => {
     next();
 })
 //-----------------------------------------------------------------------------------------------
-// Test Api
+// SignIn Up Api
 
-router.route('/Test_GETById/:id').get((request, response) => {
-    try {
-        Tests.TestgetById(request.params.id).then(res => {
-            response.json(res);
-        })
-    }
-    catch (err) {
-        console.log("Apierr", err);
-    }
-})
+router.route('/signIn/:userName/:password').get((request, response) => {
 
-//-----------------------------------------------------------------------------------------------
-// Factory Api
-router.route('/sugarFactory_GETAll').get((request, response) => {
-    try {
-        sugarFactory.getAll().then(res => {
-            response.json(res);
-        })
-    }
-    catch (err) {
-        console.log(err);
-    }
-})
-
-router.route('/sugarFactory_GETById/:id').get((request, response) => {
-    try {
-        sugarFactory.getById(request.params.id).then(res => {
-            response.json(res);
-        }).catch((err) => {
-            console.log(err);
-        })
-    }
-    catch (err) {
-        console.log("Apierr", err);
-    }
-})
-
-router.route('/sugarFactory_POST').post((request, response) => {
-    let data = { ...request.body }
-    sugarFactory.saveEdit(data).then(res => {
+    let userName = request.params.userName;
+    let password = request.params.password;
+    signIn.signIn(userName, password).then(res => {
         response.json(res);
     })
 })
 
-router.route('/sugarFactory_PUT/:id').put((request, response) => {
-    try {
-        let data = { ...request.body };
-        sugarFactory.saveEdit(data).then(res => {
-            response.json(res);
-        })
-    }
-    catch (err) {
-        console.log("Apierr", err);
-    }
+router.route('/signUp').post((request, response) => {
+    let data = { ...request.body }
+    signIn.signUp(data).then(res => {
+        response.json(res);
+    })
 })
 
-// End factory Api
+// End SignIn Up Api
 //--------------------------------------------------------------------------------------------------
-
-// center Api
-
-router.route("/center_GETALL").get((request, response) => {
-    try {
-        center.getAll().then(res => {
-            response.json(res);
-        })
-    }
-    catch (err) {
-        console.log("center_getAll", err);
-    }
-})
-
-router.route('/center_GetById/:id').get((request, response) => {
-    try {
-        sugarFactory.getById(request.params.id).then(res => {
-            response.json(res[0]);
-        }).catch((err) => {
-            console.log(err);
-        })
-    }
-    catch (err) {
-        console.log("Apierr", err);
-    }
-})
-
-// end center Api
-//------------------------------------------------------------------------------------------------------
-// State Api
-
-router.route('/saveState').post((request, response) => {
-    let data = { ...request.body }
-    state.saveState(data).then(res => {
+// state master Api
+router.route('/stateMaster_GetAll').get((request, response) => {
+    stateMaster.GetAll().then(res => {
         response.json(res);
     })
 })
-
-router.route('/saveDistrict').post((request, response) => {
-    let data = { ...request.body }
-    state.saveDistrict(data).then(res => {
-        response.json(res);
-    })
-})
-
-router.route('/saveTahasil').post((request, response) => {
-    let data = { ...request.body }
-    state.saveTahasil(data).then(res => {
-        response.json(res);
-    })
-})
-
-router.route('/saveVillage').post((request, response) => {
-    let data = { ...request.body }
-    state.saveVillage(data).then(res => {
-        response.json(res);
-    })
-})
-
-// end State Api
 //---------------------------------------------------------------------------------------------------
+// company Master
+router.route('/companyMaster_GetAll').get((request, response) => {
+    companyMaster.GetAll().then(res => {
+        response.json(res);
+    })
+})
+
+router.route('/companyMaster_Save').post((request, response) => {
+    let data = { ...request.body }
+    companyMaster.saveEdit(data).then(res => {
+        response.json(res);
+    })
+})
+
+// end company Master
+//---------------------------------------------------------------------------------------------------
+// Role Master
+
+router.route('/roleMaster_GetAll').get((request, response) => {
+    roleMaster.GetAll().then(res => {
+        response.json(res);
+    })
+})
+
+router.route('/roleMaster_GetById/:Id').get((request, response) => {
+    let Id = request.params.Id;
+    roleMaster.GetById(Id).then(res => {
+        response.json(res);
+    })
+})
+
+router.route('/roleMaster_SaveEdit').post((request, response) => {
+    let data = { ...request.body };
+    roleMaster.saveEdit(data).then(res => {
+        response.json(res);
+    })
+})
+
+//--------------------------------------------------------------------------------------------------
 var port = process.env.PORT || 8090;
 app.listen(port);
 console.log('Order API is runnning at ' + port);

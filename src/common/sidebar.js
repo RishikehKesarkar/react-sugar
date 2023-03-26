@@ -9,6 +9,8 @@ import {
 } from 'cdbreact';
 import { NavLink, Routes, Route } from 'react-router-dom';
 import routeConfig from './routes/routesConfig';
+import Layout from '../layout/Layout';
+import RequireAuth from './RequireAuth';
 
 const Sidebar = () => {
   return (
@@ -53,15 +55,20 @@ const Sidebar = () => {
 
 const RouteSection = () => (
   <Routes>
-    {
-      routeConfig.map((val, index) => (
-        <Route key={index} path={val.path} element={val.component} />
-      ))
-    }
+    <Route path='/' element={<Layout />}>
+      {
+        routeConfig.map((val, index) => (
+          val.Id == undefined ? <Route key={index} path={val.path} element={val.component} /> :
+            <Route key={index} element={<RequireAuth allowedRoles={val.Id} />} >
+              <Route path={val.path} element={val.component} />
+            </Route>
+        ))
+      }
+    </Route>
   </Routes>
 )
 
-export {RouteSection};
+export { RouteSection };
 export default Sidebar;
 
 /*<NavLink  to="/" > {activeClassName="activeClicked" }

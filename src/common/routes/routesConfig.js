@@ -1,41 +1,60 @@
- import Login from "../../pages/auth/login";
-import CenterForm from "../../pages/centers/centerForm";
-import Factory from "../../pages/factory/factory";
-import FactoryForm from "../../pages/factory/factoryForm";
-import TestFile from "../../pages/TestFile";
-import TestFile1 from "../../pages/TestFile1";
+import SignIn from "../../pages/auth/login";
+import Home from "../../pages/home/Home";
+import AccountHead from "../../pages/master/accountHead";
+import SignUp from "../../pages/auth/SignUp";
+import CompanyMaster from "../../pages/master/companyMaster";
+import RoleMaster from "../../pages/master/roleMaster";
+import Unauthorized from "../../pages/Unauthorized";
 
  const routeConfig=[
     {
         path:'/',
         title:'login',
         icon:"columns",
-        component:<Login/>
+        component:<SignIn/>
     },
     {
-        path:'/test',
-        title:'test1',
+        path:'unauthorized',
+        title:'unauthorized',
         icon:"columns",
-        component:<TestFile1/>
+        component:<Unauthorized/>
     },
     {
-        path:'/factory',
-        title:'factory',
+        Id:1,
+        path:'/Home',
+        title:'Home',
         icon:"columns",
-        component:<Factory/>
+        component:<Home/>
     },
     {
-        path:'/factory/form/:id',
-        // title:'factoryForm',
-        // icon:"columns",
-        component:<FactoryForm/>
-    },
-    {
-        path:'/center/form',
-        title:'center',
+        Id:2,
+        path:'/Account',
+        title:'Account',
         icon:"columns",
-        component:<CenterForm/>
-    }
+        component:<AccountHead/>
+    },
+    {
+        Id:3,
+        path:'/SignUp',
+        title:'user Registration',
+        icon:"columns",
+        component:<SignUp/>
+    },
+    {
+        Id:4,
+        path:'/Company',
+        title:'Company',
+        icon:"columns",
+        component:<CompanyMaster/>
+    },
+    {
+        Id:5,
+        path:'/Role',
+        title:'Role',
+        icon:"columns",
+        component:<RoleMaster/>
+    },
+
 ]
 
 export default routeConfig;

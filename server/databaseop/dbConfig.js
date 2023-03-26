@@ -2,7 +2,7 @@ const config = {
     user: 'ke',
     password: '1234',
     server: 'DESKTOP-0KQS8DF',
-    database: 'reactdb',
+    database: 'reactsugarDB',
     options: {
         trustedconnection: true,
         enableArithAbort: true,

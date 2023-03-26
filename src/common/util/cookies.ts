@@ -1,11 +1,11 @@
 import Cookies from "js-cookie";
 
-const setCookies = (value: any) => {
-    Cookies.set('loader', value)
+const setCookies = (name: any, value: any) => {
+    Cookies.set(name, value)
 }
 
-const getCookies:any=(name:any)=>{
+const getCookies: any = (name: any) => {
     return Cookies.get(name);
 }
 
-export {setCookies,getCookies};
+export { setCookies, getCookies };

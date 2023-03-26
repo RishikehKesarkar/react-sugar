@@ -5,16 +5,14 @@ import Box from '@mui/material/Box';
 import { BrowserRouter as Router } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import TestFile from './pages/TestFile';
 import { RouteSection } from './common/sidebar';
+import SignIn from './pages/auth/login';
 const mdTheme = createTheme();
 
 function App() {
   return (
     <>
-      <Router>
         <RouteSection />
-      </Router>
       <ToastContainer theme='colored'/>
     </>
   );
