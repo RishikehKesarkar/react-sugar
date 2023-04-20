@@ -1,19 +1,22 @@
-import './assets/css/App.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import './assets/css/App.css'
 import Box from '@mui/material/Box';
-import { BrowserRouter as Router } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { RouteSection } from './common/sidebar';
-import SignIn from './pages/auth/login';
+import Routers from './Routes/routes';
 const mdTheme = createTheme();
+
+const ROLES = {
+  'User': 2001,
+  'Editor': 1984,
+  'Admin': 5150
+}
 
 function App() {
   return (
     <>
-        <RouteSection />
-      <ToastContainer theme='colored'/>
+      <Routers />
+      <ToastContainer theme='colored' />
     </>
   );
 }

@@ -1,81 +1,68 @@
-import { useEffect, useState } from "react";
-import Control from "../../components";
-import adminLayout from "../../hoc/adminLayout";
-import { AgGridReact } from "ag-grid-react";
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import TableView from "../../common/table";
-import { Grid } from "@mui/material";
-import routeConfig from "../../common/routes/routesConfig";
-import { RootState } from "../../redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { roleMaster_GetById, roleMaster_Save } from "../../api/roleMasterApi";
+import adminLayout from "../../masterLayout/adminLayout";
 import { useFormik } from "formik";
-import * as yup from "yup";
+import * as yup from 'yup';
+import Control from "../../components";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import store, { RootState } from "../../store/store";
+import { toast } from "react-toastify";
+import { sliceEnum } from "../../common/enum/Enum";
+import { IHeadCell } from "../../interface/tableHead/IHeadCell";
+import CustomTable from "../../common/CustomTable";
+import pages from "../../Routes/pages";
+import { pageInterface } from "../../Routes/pages";
+import crypto from "../../common/crypto";
+import { getRole } from "../../service/roleMaster-Service";
 
-const columnDefs = [
-    { headerName: 'Select', field: 'Select', filter: true },
-    { headerName: 'Sr No', field: 'Id', filter: true },
-    { headerName: 'Page Name', field: 'pageName' },
+const headCells: IHeadCell[] = [
+    {
+        id: 'Id',
+        numeric: false,
+        disablePadding: true,
+        label: 'sr No'
+    },
+    {
+        id: 'title',
+        numeric: false,
+        disablePadding: true,
+        label: 'page Name'
+    },
 ]
 
 const RoleMaster = () => {
     const dispatch = useDispatch();
-    const { item } = useSelector((state: RootState) => state.role);
-    const Id = 3;
-    const [rowData, setRowData] = useState<any[]>([]);
-    const [search, setSearch] = useState("");
-    const tempArr: any = [];
+    const [tablevalue, setTablevalues] = useState<any>({});
+    const [pageArr, setPageArr] = useState<readonly pageInterface[]>([])
+    const { data, dataArr, status, httpStatus, message } = useSelector((state: RootState) => state.roleMaster);
+    const { roles } = useSelector((state: RootState) => state.auth.data);
+    const { id } = useParams();
+
+    useEffect(() => {
+        if (id != null && id != "")
+            dispatch(getRole(crypto.decrypted(id)));
+    }, [id])
+
+    useEffect(() => {
+        console.log("data", data.roleAccess?.roleAccess);
+        pages.map((page) => {
+            page.selected = data.roleAccess?.roleAccess?.includes(page.Id.toString()) ? true : false
+        })
+        setPageArr(pages);
+    }, [data.roleAccess?.roleAccess])
 
     const handleValidation = yup.object({
         roleName: yup.string().required("role name require"),
     })
     const formik = useFormik({
-        initialValues: item,
+        initialValues: data,
         enableReinitialize: true,
         validationSchema: handleValidation,
-        onSubmit: data => {
-            console.log("onSubmit", data);
-            dispatch(roleMaster_Save(data));
+        onSubmit: roledata => {
+            console.log("onSubmit", roledata);
         }
     })
 
-
-    const checkboxChange = (e: any) => {
-        const { checked, id } = e.target;
-        if (id.toLowerCase() == "checkall") {
-            const checkedValue = rowData.map((row: any) => { tempArr.push(row.Id); return { ...row, isChecked: checked } });
-            setRowData(checkedValue);
-        }
-        else {
-            const checkedValue = rowData.map((row: any) =>
-                row.Id == id ? { ...row, isChecked: checked } : row);
-
-            checkedValue.filter(filter => filter.isChecked === true).map(reId => { tempArr.push(reId.Id) });
-            setRowData(checkedValue);
-        }
-        formik.setFieldValue('roleAccess.roleAccess', tempArr.toString(), true);
-    }
-
-    useEffect(() => {
-        dispatch(roleMaster_GetById(Id))
-    }, [Id])
-
-    useEffect(() => {
-        let routeArray: any = [];
-        //if (item.roleAccess?.roleAccess != undefined) {
-        const roleAccess = item.roleAccess?.roleAccess;
-        routeConfig.filter(route => route.Id != undefined).
-            map(s => {
-                var id: any = s.Id?.toString();
-                routeArray.push({
-                    Id: s.Id, pageName: s.title,
-                    isChecked: roleAccess?.includes(id) ? true : false
-                })
-            })
-        //}
-        setRowData(routeArray);
-    }, [item])
     return (
         <Control.Paper>
             <form autoComplete='off' onSubmit={formik.handleSubmit} >
@@ -93,19 +80,13 @@ const RoleMaster = () => {
                     <Control.GridItem></Control.GridItem>
                     <Control.GridItem></Control.GridItem>
                     <Control.GridItem><Control.Button text="Submit" type="submit" /> </Control.GridItem>
-                    <Grid item xs={12}>
-                        <Control.Input value={search} onChange={(e: any) => { setSearch(e.target.value) }} />
-                        <TableView filter={search}
-                           rowData={rowData}
-                            columnDefs={columnDefs}
-                            checkboxOnchange={checkboxChange}
-                        />
-                    </Grid>
+                    <CustomTable tableName="Role" headCells={headCells} rows={pageArr}
+                        checkboxRequire={true} outTableValueState={setTablevalues} />
                 </Control.GridContainer>
-
             </form>
         </Control.Paper>
     )
+
 }
 
-export default adminLayout(RoleMaster); 
+export default adminLayout(RoleMaster);

@@ -1,29 +1,40 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import Control from '../../components';
 import { useSelector, useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import { toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
-import { companyMaster_Save } from '../../api/companyMasterApi';
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as yup from 'yup';
-import { RootState } from '../../redux/store';
-import adminLayout from '../../hoc/adminLayout';
-import { resetCompany } from '../../redux/reducers/companyMasterSlice';
-import drpUtility from '../../common/util/drpUtilities';
-import { Message } from '../../common/util/message';
-
+import adminLayout from '../../masterLayout/adminLayout';
+import Loader from '../../shared/loader';
+import drp from '../../utilities/drpUtil';
+import store, { RootState } from '../../store/store';
+import { sliceEnum } from '../../common/enum/Enum';
+import { createNewCompany } from '../../service/companyMaster-Service';
 const CompanyMaster = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const location = useLocation();
+
     const { id }: any = useParams();
-    const { item, message, isSuccess, loading, isError } = useSelector((state: RootState) => state.company);
+    let item: any;
+    const { data, status, message, httpStatus } = useSelector((state: RootState) => state.companyMaster);
+
+    useEffect(() => {
+        if (httpStatus == '403')
+            navigate('/', { state: { from: location }, replace: true });
+        else if (status == sliceEnum.error)
+            toast.error(message)
+        else if (status == sliceEnum.success)
+            toast.success(message);
+    }, [status, message])
 
     const handleValidation = yup.object({
         shortName: yup.string().required("short name require"),
         companyName: yup.string().required("company name require"),
         companyAddress: yup.string().required("company address require"),
-        //stateId: yup.number().required("state require"),
+        stateId: yup.number().required("state require"),
         cityName: yup.string().required("city name require"),
         gstNumber: yup.string().required("gst require"),
         cstNumber: yup.string().required("cst require"),
@@ -35,29 +46,19 @@ const CompanyMaster = () => {
     })
 
     const formik = useFormik({
-        initialValues: item, //factory.length==undefined ?factory:
+        initialValues: data, //factory.length==undefined ?factory:
         enableReinitialize: true,
         validationSchema: handleValidation,
-        onSubmit: data => {
-            console.log("data", data);
-            dispatch(companyMaster_Save(data));
+        onSubmit: companydata => {
+            companydata.createdBy = store.getState().loginUser.data.Id;
+            console.log("data", companydata);
+            dispatch(createNewCompany(companydata));
         }
     })
+
     const option = [
         { label: "MH", id: 1 }, { label: "MH1", id: 2 }
     ];
-
-    useEffect(() => {
-        if (isSuccess) {
-            toast.success(Message.success);
-            navigate("/Home")
-        }
-        if (isError) {
-            toast.error(message);
-        }
-        setTimeout(()=>{
-            dispatch(resetCompany())},2000);
-    }, [isSuccess, isError])
 
     useEffect(() => {
         //dispatch(get_Factory(id));
@@ -65,23 +66,24 @@ const CompanyMaster = () => {
     return (
         <>
             <Control.Paper>
+                <Loader isLoading={status} />
                 <form autoComplete='off' onSubmit={formik.handleSubmit} >
                     <Grid container spacing={1}>
                         <Grid xs={12} sm={6} item>
                             <Control.Input {...formik.getFieldProps("shortName")}
-                                label="Short Name" error={formik.errors.shortName} />
+                                error={formik.errors.shortName} label="Short Name" />
                         </Grid>
                         <Grid xs={12} sm={6} item>
                             <Control.Input {...formik.getFieldProps("companyName")}
-                                label="company Name" fullWidth error={formik.errors.companyName} />
+                                error={formik.errors.companyName} label="company Name" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
                             <Control.Input {...formik.getFieldProps("companyAddress")}
-                                label="company Address" fullWidth />
+                                error={formik.errors.companyAddress} label="company Address" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="optional address" fullWidth
-                            />
+                            <Control.Input {...formik.getFieldProps("optionalAddress")}
+                                label="optional address" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
                             <Grid container spacing={1}>
@@ -89,54 +91,53 @@ const CompanyMaster = () => {
                                     <Control.Select disablePortal label="state"
                                         id="stateId"
                                         value={formik.values.stateId}
-                                        option={drpUtility.DrpState()}
+                                        option={drp.DrpState()}
                                         onChange={(_: any, value: any) => {
                                             formik.setFieldValue('stateId', value.id, true);
                                         }}
                                     />
                                 </Grid>
                                 <Grid xs={12} sm={6} item>
-                                    <Control.Input label="city name" {...formik.getFieldProps("cityName")}
-                                        error={formik.errors.cityName} />
+                                    <Control.Input {...formik.getFieldProps("cityName")}
+                                        error={formik.errors.cityName} label="city name" />
                                 </Grid>
                             </Grid>
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="pincode" {...formik.getFieldProps("pinCode")}
-                                error={formik.errors.pinCode} />
+                            <Control.Input label="pincode" />
                         </Grid>
 
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="GST" fullWidth {...formik.getFieldProps("gstNumber")}
-                                error={formik.errors.gstNumber} />
+                            <Control.Input {...formik.getFieldProps("gstNumber")}
+                                error={formik.errors.gstNumber} label="GST" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="CST" fullWidth {...formik.getFieldProps("cstNumber")}
-                                error={formik.errors.cstNumber} />
+                            <Control.Input {...formik.getFieldProps("cstNumber")}
+                                error={formik.errors.cstNumber} label="CST" fullWidth />
                         </Grid>
 
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="TIN" fullWidth {...formik.getFieldProps("tinNumber")}
-                                error={formik.errors.tinNumber} />
+                            <Control.Input {...formik.getFieldProps("tinNumber")}
+                                error={formik.errors.tinNumber} label="TIN" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="Pan No" fullWidth {...formik.getFieldProps("panNumber")}
-                                error={formik.errors.panNumber} />
+                            <Control.Input {...formik.getFieldProps("panNumber")}
+                                error={formik.errors.panNumber} label="Pan No" fullWidth />
                         </Grid>
 
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="FSSAI No" fullWidth {...formik.getFieldProps("fssaiNumber")}
-                                error={formik.errors.fssaiNumber} />
+                            <Control.Input {...formik.getFieldProps("fssaiNumber")}
+                                error={formik.errors.fssaiNumber} label="FSSAI No" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="Mobile" fullWidth {...formik.getFieldProps("mobileNumber")}
-                                error={formik.errors.mobileNumber} />
+                            <Control.Input {...formik.getFieldProps("mobileNumber")}
+                                error={formik.errors.mobileNumber} label="Mobile" fullWidth />
                         </Grid>
                         <Grid xs={12} sm={6} item>
-                            <Control.Input label="email" fullWidth {...formik.getFieldProps("emailAddress")}
-                                error={formik.errors.emailAddress} />
+                            <Control.Input {...formik.getFieldProps("emailAddress")}
+                                error={formik.errors.emailAddress} label="email" fullWidth />
                         </Grid>
-                        
+
                         <Control.Button text="Submit" type="submit" />
                         <Control.Button text="Back" onClick={() => { navigate("/Home") }} />
                     </Grid>
