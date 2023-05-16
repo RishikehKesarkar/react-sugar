@@ -2,12 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Emessages, sliceEnum } from "../../common/enum/Enum";
 import IroleAccess from "../../interface/role/IroleAccess";
 import IroleMaster from "../../interface/role/IroleMaster";
-import { getAllRoles, getRole } from "../../service/roleMaster-Service";
+import { createNewRole, deleteRole, getAllRoles, getRole, updateRole } from "../../service/roleMaster-Service";
+import crypto from "../../common/crypto";
+import { getNativeSelectUtilityClasses } from "@mui/material";
+import TestAuth from "../../hooks/TestAuth";
+
+const userInfo = (sessionStorage.getItem("uinfo")) ? JSON.parse(crypto.decrypted(sessionStorage.getItem("uinfo"))) : getNativeSelectUtilityClasses;
 
 const roleAccessInitial: IroleAccess = {
     Id: 0,
     roleId: 0,
-    roleAccess: ""
+    pages: "",
+    createdBy: userInfo?.userId,
+    updatedBy: userInfo?.userId
 }
 
 const roleMasterinitial: IroleMaster = {
@@ -15,6 +22,8 @@ const roleMasterinitial: IroleMaster = {
     roleName: "",
     description: "",
     roleAccess: roleAccessInitial,
+    createdBy: userInfo?.userId,
+    updatedBy: userInfo?.userId
 }
 
 const initialState = {
@@ -40,7 +49,7 @@ const roleMasterSlice = createSlice({
             state.status = sliceEnum.loading;
         }).addCase(getAllRoles.fulfilled, (state, action) => {
             state.dataArr = action.payload;
-            state.status = sliceEnum.success;
+            state.data = roleMasterinitial;
         }).addCase(getAllRoles.rejected, (state, action) => {
             state.status = sliceEnum.error;
             state.httpStatus = action.error.code;
@@ -50,9 +59,42 @@ const roleMasterSlice = createSlice({
         builder.addCase(getRole.pending, (state) => {
             state.status = sliceEnum.loading;
         }).addCase(getRole.fulfilled, (state, action) => {
+            console.log(action.payload);
             state.data = action.payload;
-            state.status = sliceEnum.success;
         }).addCase(getRole.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+
+        builder.addCase(createNewRole.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(createNewRole.fulfilled, (state, action) => {
+            state.status = sliceEnum.success;
+            state.message = Emessages.success;
+        }).addCase(createNewRole.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+
+        builder.addCase(updateRole.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(updateRole.fulfilled, (state, action) => {
+            state.status = sliceEnum.success;
+            state.message = Emessages.update;
+        }).addCase(updateRole.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+
+        builder.addCase(deleteRole.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(deleteRole.fulfilled, (state, action) => {
+            state.status = sliceEnum.success;
+            state.message = Emessages.delete;
+        }).addCase(deleteRole.rejected, (state, action) => {
             state.status = sliceEnum.error;
             state.httpStatus = action.error.code;
             state.message = action.error.message;

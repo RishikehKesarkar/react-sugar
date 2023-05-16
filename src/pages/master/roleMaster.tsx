@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import Control from "../../components";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import store, { RootState } from "../../store/store";
 import { toast } from "react-toastify";
 import { sliceEnum } from "../../common/enum/Enum";
@@ -13,7 +13,8 @@ import CustomTable from "../../common/CustomTable";
 import pages from "../../Routes/pages";
 import { pageInterface } from "../../Routes/pages";
 import crypto from "../../common/crypto";
-import { getRole } from "../../service/roleMaster-Service";
+import { createNewRole, getRole, updateRole } from "../../service/roleMaster-Service";
+import { Grid } from "@mui/material";
 
 const headCells: IHeadCell[] = [
     {
@@ -32,36 +33,62 @@ const headCells: IHeadCell[] = [
 
 const RoleMaster = () => {
     const dispatch = useDispatch();
-    const [tablevalue, setTablevalues] = useState<any>({});
-    const [pageArr, setPageArr] = useState<readonly pageInterface[]>([])
-    const { data, dataArr, status, httpStatus, message } = useSelector((state: RootState) => state.roleMaster);
-    const { roles } = useSelector((state: RootState) => state.auth.data);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [pageArr, setPageArr] = useState<any>([])
+    const { data, status, httpStatus, message } = useSelector((state: RootState) => state.roleMaster);
     const { id } = useParams();
 
     useEffect(() => {
-        if (id != null && id != "")
-            dispatch(getRole(crypto.decrypted(id)));
-    }, [id])
+        if (httpStatus == '403')
+            navigate('/', { state: { from: location }, replace: true });
+        else if (status == sliceEnum.error)
+            toast.error(message)
+        else if (status == sliceEnum.success) {
+            toast.success(message); navigate(-1);
+        }
+    }, [status, message])
 
     useEffect(() => {
-        console.log("data", data.roleAccess?.roleAccess);
-        pages.map((page) => {
-            page.selected = data.roleAccess?.roleAccess?.includes(page.Id.toString()) ? true : false
+        if (crypto.decrypted(id)) {
+            dispatch(getRole(crypto.decrypted(id)));
+        }
+    }, [id])
+
+    const roleAccess = data.roleAccess?.pages;
+    let pageArray: any = [];
+    useMemo(() => {
+        pages.filter(frows => frows.routeType === 'private').map((page) => {
+            var id: any = page.Id?.toString();
+            pageArray.push({
+                Id: page.Id,
+                path: page.path, title: page.title,
+                icon: page.icon, component: page.component,
+                hidden: page.hidden, routeType: page.routeType,
+                selected: page.selected = roleAccess?.includes(id) ? true : false
+            })
+
         })
-        setPageArr(pages);
-    }, [data.roleAccess?.roleAccess])
+        setPageArr(pageArray);
+    }, [roleAccess])
 
     const handleValidation = yup.object({
         roleName: yup.string().required("role name require"),
     })
+
     const formik = useFormik({
         initialValues: data,
         enableReinitialize: true,
         validationSchema: handleValidation,
         onSubmit: roledata => {
-            console.log("onSubmit", roledata);
+            const action = (crypto.decrypted(id)) ? updateRole(roledata) : createNewRole(roledata);
+            dispatch(action);
         }
     })
+
+    const getTableValue = (props: any) => {
+        formik.setFieldValue('roleAccess.pages', props.toString(), true);
+    }
 
     return (
         <Control.Paper>
@@ -78,10 +105,15 @@ const RoleMaster = () => {
                             fullWidth multiline />
                     </Control.GridItem>
                     <Control.GridItem></Control.GridItem>
+
                     <Control.GridItem></Control.GridItem>
-                    <Control.GridItem><Control.Button text="Submit" type="submit" /> </Control.GridItem>
+                    <div>
+                        <Control.Button text="Submit" type="submit" />
+                        <Control.Button text="Back" onClick={() => navigate(-1)} />
+                    </div>
+
                     <CustomTable tableName="Role" headCells={headCells} rows={pageArr}
-                        checkboxRequire={true} outTableValueState={setTablevalues} />
+                        checkboxRequire={true} tableActions={{ getTableValue }} />
                 </Control.GridContainer>
             </form>
         </Control.Paper>

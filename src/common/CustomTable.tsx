@@ -18,12 +18,10 @@ import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { IHeadCell } from '../interface/tableHead/IHeadCell';
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
+import DialogBox from './dialogBox';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -83,12 +81,11 @@ interface EnhancedTableProps {
 
 function EnhancedTableHead(props: EnhancedTableProps) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount,
-        onRequestSort, checkboxRequire, headCells, actions } =
-        props;
-    const createSortHandler =
-        (newOrderBy: keyof any) => (event: React.MouseEvent<unknown>) => {
-            onRequestSort(event, newOrderBy);
-        };
+        onRequestSort, checkboxRequire, headCells, actions } = props;
+
+    const createSortHandler = (newOrderBy: keyof any) => (event: React.MouseEvent<unknown>) => {
+        onRequestSort(event, newOrderBy);
+    };
 
     return (
         <TableHead>
@@ -128,7 +125,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                     </TableCell>
                 ))}
                 {
-                    // actions ? <TableCell key="tcactions" align='right'>Action</TableCell> : null
+                    actions ? <TableCell key="tcactions" align='right'>Action</TableCell> : null
                 }
             </TableRow>
         </TableHead>
@@ -137,11 +134,13 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface EnhancedTableToolbarProps {
     numSelected: number;
-    tableName: string
+    tableName: string,
+    ToolBarActions?: { handleAddClick?: any }
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-    const { numSelected, tableName } = props;
+    const { numSelected, tableName, ToolBarActions } = props;
+    const navigate = useNavigate();
 
     return (
         <Toolbar
@@ -180,11 +179,10 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                     </IconButton>
                 </Tooltip>
             ) : (
-                <Tooltip title="Add">
-                    <IconButton>
-                        <AddIcon />
-                    </IconButton>
-                </Tooltip>
+                ToolBarActions?.handleAddClick ?
+                    <>
+                        {ToolBarActions?.handleAddClick({ navigate })}
+                    </> : null
             )}
         </Toolbar>
     );
@@ -197,12 +195,13 @@ interface CustomTableProps {
     checkboxRequire?: boolean,
     filterText?: string | any,
     actions?: boolean,
-    outTableValueState?: any
+    outTableValueState?: any,
+    tableActions?: { handleEditClick?: any, handleDeleteClick?: any, handleAddClick?: any, getTableValue?: any }
 }
 
 function CustomTable(props: CustomTableProps) {
     const { rows, headCells, checkboxRequire, filterText, actions,
-        outTableValueState, tableName } = props;
+        tableName, tableActions } = props;
     const [order, setOrder] = React.useState<Order>(DEFAULT_ORDER);
     const [orderBy, setOrderBy] = React.useState<any>(DEFAULT_ORDER);
     const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -211,17 +210,27 @@ function CustomTable(props: CustomTableProps) {
     const [visibleRows, setVisibleRows] = React.useState<any[] | null>(null);
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [paddingHeight, setPaddingHeight] = React.useState(0);
-
     const navigate = useNavigate();
 
-    React.useEffect(() => {
-        console.log("rows", rows);
+    React.useMemo(() => {
         let newSelected: string[] = [];
-        rows.filter((frow: any) => frow.selected == true).map((row: any) => {
-            console.log("Hi");
-            newSelected = newSelected.concat(selected, row.Id);
+        rows.map((row: any) => {
+            const selectedIndex = selected.indexOf(row.Id);
+            if (row.selected) {
+                if (selectedIndex === -1) {
+                    newSelected = newSelected.concat(selected, row.Id);
+                } else if (selectedIndex === 0) {
+                    newSelected = newSelected.concat(selected.slice(1));
+                } else if (selectedIndex === selected.length - 1) {
+                    newSelected = newSelected.concat(selected.slice(0, -1));
+                } else if (selectedIndex > 0) {
+                    newSelected = newSelected.concat(
+                        selected.slice(0, selectedIndex),
+                        selected.slice(selectedIndex + 1),
+                    );
+                }
+            }
         })
-        console.log("newSelected", newSelected);
         setSelected(newSelected);
     }, [rows])
 
@@ -257,8 +266,9 @@ function CustomTable(props: CustomTableProps) {
 
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n: any) => n.name);
+            const newSelected = rows.map((n: any) => n.Id);
             setSelected(newSelected);
+            if (tableActions?.getTableValue) tableActions?.getTableValue(newSelected);
             return;
         }
         setSelected([]);
@@ -280,6 +290,8 @@ function CustomTable(props: CustomTableProps) {
             );
         }
         setSelected(newSelected);
+        if (tableActions?.getTableValue) tableActions?.getTableValue(newSelected);
+
     };
 
     const handleChangePage = React.useCallback(
@@ -335,7 +347,6 @@ function CustomTable(props: CustomTableProps) {
     }
 
     const isNull = (val: any) => {
-        console.log("val", val);
         return (val == null || val == undefined || val == "") ? "N/A" : val;
     }
 
@@ -361,7 +372,8 @@ function CustomTable(props: CustomTableProps) {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} tableName={tableName} />
+                <EnhancedTableToolbar numSelected={selected.length} tableName={tableName}
+                    ToolBarActions={tableActions} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -417,27 +429,15 @@ function CustomTable(props: CustomTableProps) {
                                                 {
                                                     headCells.map((cell, index: any) => {
                                                         const value = row[cell.id];
-                                                        if (cell.id != "Action") {
-                                                            return <TableCell hidden={cell.hidden} key={index} align={cell.numeric ? 'right' : 'left'}>{value}</TableCell>
-                                                        }
-                                                        else {
-                                                            return <cell.renderCell param={row} navigate={navigate} />
-                                                        }
+                                                        return <TableCell hidden={cell.hidden} key={index} align={cell.numeric ? 'right' : 'left'}>{value}</TableCell>
+
                                                     })
                                                 }
                                                 {
-                                                    // actions ? <TableCell key="tcaction" align='right'>
-                                                    //     <Tooltip title="delete">
-                                                    //         <IconButton color='error'>
-                                                    //             <DeleteIcon />
-                                                    //         </IconButton>
-                                                    //     </Tooltip>
-                                                    //     <Tooltip title="edit">
-                                                    //         <IconButton id={row.Id} color='primary' >
-                                                    //             <EditIcon />
-                                                    //         </IconButton>
-                                                    //     </Tooltip>
-                                                    // </TableCell> : null
+                                                    actions ? <TableCell key="tcaction" align='right'>
+                                                        {tableActions?.handleDeleteClick ? tableActions?.handleDeleteClick({ row, navigate }) : null}
+                                                        {tableActions?.handleEditClick ? tableActions?.handleEditClick({ row, navigate }) : null}
+                                                    </TableCell> : null
                                                 }
 
                                             </TableRow>

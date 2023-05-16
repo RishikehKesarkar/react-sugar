@@ -1,0 +1,17 @@
+.dialog {
+    padding: "2";
+    position: 'absolute';
+    top: "5"
+}
+
+.dialogTitle {
+    text-align: 'center'
+}
+
+.dialogContent {
+    text-align: 'center'
+}
+
+.dialogAction {
+    justify-content: 'center'
+}

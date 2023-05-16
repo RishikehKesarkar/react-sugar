@@ -1,5 +1,5 @@
 export interface IHeadCell {
-    disablePadding: boolean;
+    disablePadding?: boolean;
     id: any;
     label: string;
     numeric: boolean;

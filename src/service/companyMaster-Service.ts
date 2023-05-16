@@ -1,65 +1,68 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../api/axios";
-import { authHeader } from "../api/axios";
 import { initialcompanyState } from "../store/reducer/companyMasterSlice";
 import store from "../store/store";
+import { axiosPrivate } from "../api/axios";
+import IcompanyMaster from "../interface/company/Icompany";
 
 export const getAllCompanys = createAsyncThunk('company/getAll',
     async () => {
         try {
-            return await (await axios.get('/companyMaster', { headers: authHeader() })).data;
+            return await (await axiosPrivate.get('/companyMaster')).data;
         }
         catch (err: any) {
             throw error(err);
         }
         finally {
-            setTimeout(() => { store.dispatch(initialcompanyState()) }, 3000)
+            setTimeOut();
         }
     }
 )
 
 export const getCompany = createAsyncThunk('company/get',
-    async (id) => {
+    async (id: any) => {
         try {
-            return await (await axios.get(`/companyMaster/${id}`, { headers: authHeader() })).data;
+            return await (await axiosPrivate.get(`/companyMaster/${id}`)).data;
         }
         catch (err: any) {
             throw error(err);
         }
         finally {
-            setTimeout(() => { store.dispatch(initialcompanyState()) }, 3000)
+            setTimeOut();
         }
     }
 )
 
 export const createNewCompany = createAsyncThunk('company/createNew',
-    async (data:any) => {
+    async (data: IcompanyMaster) => {
         try {
-            return await (await axios.post('/companyMaster',data, { headers: authHeader() })).data;
+            return await (await axiosPrivate.post('/companyMaster', data)).data;
         }
         catch (err: any) {
             throw error(err);
         }
         finally {
-            setTimeout(() => { store.dispatch(initialcompanyState()) }, 3000)
+            setTimeOut();
         }
     }
 )
 
 export const updateCompany = createAsyncThunk('company/Update',
-    async (data) => {
+    async (data:IcompanyMaster) => {
         try {
-            return await (await axios.put('/companyMaster',data, { headers: authHeader() })).data;
+            return await (await axiosPrivate.put('/companyMaster', data)).data;
         }
         catch (err: any) {
             throw error(err);
         }
         finally {
-            setTimeout(() => { store.dispatch(initialcompanyState()) }, 3000)
+            setTimeOut();
         }
     }
 )
 
+const setTimeOut = () => {
+    setTimeout(() => { store.dispatch(initialcompanyState()) }, 2000)
+}
 const error = (err: any) => {
     return {
         code: err.response.status.toString(),

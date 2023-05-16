@@ -21,6 +21,7 @@ import Loader from '../../shared/loader';
 import { sliceEnum } from '../../common/enum/Enum';
 import { signIn } from '../../service/authService';
 import { getAllRoles } from '../../service/roleMaster-Service';
+import crypto from '../../common/crypto';
 
 const theme = createTheme();
 
@@ -38,12 +39,8 @@ export default function SignIn() {
 
   React.useEffect(() => {
     if (status == sliceEnum.success) {
-      // const user = data.userName;
-      // const roles = data.roleAccess;
-      // const accessToken: any = data.accessToken;
       dispatch(getAllRoles());
-      setAuth(data);
-      sessionStorage.setItem("AccTkn", data.accessToken);
+      sessionStorage.setItem("uinfo", crypto.encrypted(JSON.stringify({ userId: data.userId, user: data.user })));
       navigate(from, { replace: true });
     }
   }, [status])

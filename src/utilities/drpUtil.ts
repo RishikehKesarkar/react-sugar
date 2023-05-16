@@ -1,26 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
 import { sliceEnum } from "../common/enum/Enum";
 import { stateMaster_GetAll } from "../service/stateMasterService";
-import { RootState } from "../store/store";
+import { RootState, dispatch, getState } from "../store/store";
 
 // state dropdown
 const DrpState = () => {
-    var items: any;
-    const dispatch = useDispatch();
     let resultArray = [{ id: 0, label: "Select" }];
     try {
-        const state = useSelector((state: RootState) => state.state);
+        const state = getState().state;
         if (state.status != sliceEnum.error) {
-            if (state.dataArr.length === 0) {
-                dispatch(stateMaster_GetAll());
-                items = state.dataArr;
+            if (state.dataArr.length != 0) {
+                state.dataArr.map((item) => { resultArray.push({ id: item.Id, label: item.stateName }) });
             }
-            else {
-                items = state.dataArr;
-            }
-            items.map((item: any) => { resultArray.push({ id: item.Id, label: item.stateName }) });
         }
-
         return resultArray;
     }
     catch (ex) {
@@ -29,22 +21,15 @@ const DrpState = () => {
 }
 
 const DrpRoles = () => {
-    var items: any;
-    const dispatch = useDispatch();
     let resultArray = [{ id: 0, label: "Select" }];
     try {
-        const role = useSelector((state: RootState) => state.roleMaster);
+        const role = getState().roleMaster;
         if (role.status != sliceEnum.error) {
             if (role.dataArr.length === 0) {
-                dispatch(stateMaster_GetAll());
-                items = role.dataArr;
+                role.dataArr.map((item) => { resultArray.push({ id: item.Id, label: item.roleName }) });
             }
-            else {
-                items = role.dataArr;
-            }
-            items.map((item: any) => { resultArray.push({ id: item.Id, label: item.stateName }) });
-        }
 
+        }
         return resultArray;
     }
     catch (ex) {
@@ -53,5 +38,5 @@ const DrpRoles = () => {
 }
 
 
-const drp = { DrpState,DrpRoles };
+const drp = { DrpState, DrpRoles };
 export default drp;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import Control from '../../components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,18 +9,19 @@ import * as yup from 'yup';
 import adminLayout from '../../masterLayout/adminLayout';
 import Loader from '../../shared/loader';
 import drp from '../../utilities/drpUtil';
-import store, { RootState } from '../../store/store';
+import { RootState, getState } from '../../store/store';
 import { sliceEnum } from '../../common/enum/Enum';
-import { createNewCompany } from '../../service/companyMaster-Service';
+import { createNewCompany, getCompany, updateCompany } from '../../service/companyMaster-Service';
+import { stateMaster_GetAll } from '../../service/stateMasterService';
+import crypto from '../../common/crypto';
 const CompanyMaster = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-
+    const [states, setState] = useState<any[]>([]);
     const { id }: any = useParams();
-    let item: any;
     const { data, status, message, httpStatus } = useSelector((state: RootState) => state.companyMaster);
-
+    const stateArr = useSelector((state) => state);
     useEffect(() => {
         if (httpStatus == '403')
             navigate('/', { state: { from: location }, replace: true });
@@ -50,18 +51,23 @@ const CompanyMaster = () => {
         enableReinitialize: true,
         validationSchema: handleValidation,
         onSubmit: companydata => {
-            companydata.createdBy = store.getState().loginUser.data.Id;
-            console.log("data", companydata);
-            dispatch(createNewCompany(companydata));
+            companydata.createdBy = getState().loginUser.data.Id;
+            companydata.updatedBy = getState().loginUser.data.Id;
+            const action = (crypto.decrypted(id)) ? updateCompany(companydata) : createNewCompany(companydata);
+            dispatch(action);
         }
     })
 
     const option = [
         { label: "MH", id: 1 }, { label: "MH1", id: 2 }
     ];
-
     useEffect(() => {
-        //dispatch(get_Factory(id));
+        setState(drp.DrpState());
+    }, [stateArr])
+    useEffect(() => {
+        if (crypto.decrypted(id))
+            dispatch(getCompany(id));
+        dispatch(stateMaster_GetAll());
     }, [id])
     return (
         <>
@@ -91,7 +97,7 @@ const CompanyMaster = () => {
                                     <Control.Select disablePortal label="state"
                                         id="stateId"
                                         value={formik.values.stateId}
-                                        option={drp.DrpState()}
+                                        option={states}
                                         onChange={(_: any, value: any) => {
                                             formik.setFieldValue('stateId', value.id, true);
                                         }}

@@ -2,8 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import IstateMaster from "../../interface/stateMaster/IstateMaster";
 import { stateMaster_GetAll } from "../../service/stateMasterService";
 import { Emessages, sliceEnum } from "../../common/enum/Enum";
-import { HttpStatusCode } from "axios";
-import { stat } from "fs";
 import store from "../store";
 
 const initialval:IstateMaster={
@@ -37,9 +35,7 @@ const stateMasterSlice = createSlice({
         builder.addCase(stateMaster_GetAll.pending, (state) => {
             state.status = sliceEnum.loading;
         }).addCase(stateMaster_GetAll.fulfilled, (state, action) => {
-            state.status = sliceEnum.success;
             state.dataArr = action.payload;
-            state.message=Emessages.success;
         }).addCase(stateMaster_GetAll.rejected, (state, action) => {
             state.status = sliceEnum.error;
             state.httpStatus = action.error.code;

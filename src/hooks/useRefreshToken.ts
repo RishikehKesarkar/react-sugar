@@ -13,7 +13,7 @@ const useRefreshToken = () => {
             return {
                 ...prev,
                 userName:response.data.userName,
-                roles: response.data.roleAccess,
+                roles: response.data.pages,
                 accessToken: response.data.accessToken
             }
         });

@@ -5,7 +5,6 @@ import { setLoginUserDetails } from "../store/reducer/loginUserSlice";
 
 export const signInExtraReducer = createAsyncThunk('auth/signIn',
   async (data: any) => {
-    console.log("singDara", data);
     return await (await axios.post('/auth', data)).data
   }
 )

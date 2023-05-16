@@ -3,18 +3,19 @@ import CustomTable from "../../common/CustomTable";
 import { useState, useEffect } from "react";
 import Control from "../../components";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
-import { getAllRoles } from "../../service/roleMaster-Service";
+import { deleteRole, getAllRoles } from "../../service/roleMaster-Service";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store/store";
+import { RootState, dispatch } from "../../store/store";
 import { sliceEnum } from "../../common/enum/Enum";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
-import Button from "../../components/Button/Button";
-import { IconButton, TableCell, Tooltip } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import crypto from "../../common/crypto";
-
+import { editClickProps, deleteClickProps, addClickProps } from "../../interface/props/IhandleClikProps";
+import DialogBox from "../../common/dialogBox";
 
 const headCells: IHeadCell[] = [
     {
@@ -38,43 +39,56 @@ const headCells: IHeadCell[] = [
         label: 'description',
         filter: true
     },
-    {
-        id: 'Action',
-        numeric: true,
-        disablePadding: false,
-        label: 'Action',
-        renderCell: (params: any) => {
-            const { param, navigate } = params;
-            const onClick = (e: any) => {
-                e.stopPropagation(); // don't select this row after clicking
-                navigate(`/role/${crypto.encrypted(param.Id)}`, { replace: true });
-
-            };
-
-            return <TableCell key="tcaction" align='right'>
-                <Tooltip title="delete">
-                    <IconButton color='error'>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="edit">
-                    <IconButton color='primary' onClick={onClick} >
-                        <EditIcon />
-                    </IconButton>
-                </Tooltip>
-            </TableCell>
-        },
-    }
 
 ];
 
+const handleEditClick = (props: editClickProps) => {
+    const { row, navigate } = props;
+    const handleEditClick = () => {
+        navigate(`/role/${crypto.encrypted(row.Id)}`);
+    }
+    return <Tooltip title="edit">
+        <IconButton id="edit" onClick={handleEditClick} color='primary' >
+            <EditIcon />
+        </IconButton>
+    </Tooltip>
+}
+const handleAddClick = (props: any) => {
+    const { navigate } = props;
+    const handleAddClick = () => {
+        navigate(`/role/${crypto.encrypted(null)}`);
+    }
+    return <Tooltip title="Add">
+        <IconButton id="Add" onClick={handleAddClick} color='primary' >
+            <AddIcon />
+        </IconButton>
+    </Tooltip>
+}
+
 const RoleMasterList = () => {
     const [filterText, setFilterText] = useState("");
+    const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '', isLoading: false, onConfirm: () => { } })
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
 
     const { dataArr, status, httpStatus, message } = useSelector((state: RootState) => state.roleMaster);
+
+    const handleDeleteClick = (props: deleteClickProps) => {
+        const { row, navigate } = props;
+        const onConfirm = () => {
+            setConfirmDialog({ isOpen: true, isLoading: true, title: 'are you sure want to delete this?', subTitle: 'not able to recover', onConfirm })
+            dispatch(deleteRole(row.Id));
+        }
+        const handleDeleteClick = () => {
+            setConfirmDialog({ isOpen: true, isLoading: false, title: 'are you sure want to delete this?', subTitle: 'not able to recover', onConfirm })
+        }
+        return <Tooltip title="delete">
+            <IconButton id="delete" onClick={handleDeleteClick} color='error' >
+                <DeleteIcon />
+            </IconButton>
+        </Tooltip>
+    }
 
     useEffect(() => {
         dispatch(getAllRoles())
@@ -85,11 +99,10 @@ const RoleMasterList = () => {
             navigate('/', { state: { from: location }, replace: true });
         else if (status == sliceEnum.error)
             toast.error(message);
+        else if (status == sliceEnum.success) {
+            toast.success(message); navigate(-1);
+        }
     }, [status, message])
-
-    const handleEditClick = (e: any) => {
-        console.log("e", e.target);
-    }
 
     return (
         <Control.Paper>
@@ -98,8 +111,9 @@ const RoleMasterList = () => {
                     <Control.Input onChange={(e: any) => { setFilterText(e.target.value) }} />
                 </Control.GridItem>
                 <CustomTable tableName="Role List" rows={dataArr} headCells={headCells}
-                    filterText={filterText} actions={true} />
+                    filterText={filterText} tableActions={{ handleEditClick, handleDeleteClick, handleAddClick }} actions={true} />
             </Control.GridContainer>
+            <DialogBox confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </Control.Paper>
     )
 }

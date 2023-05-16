@@ -3,7 +3,10 @@ import { TextField, Autocomplete } from "@mui/material";
 export default function Select(props: any) {
     const { Id, name, label, value, option, error = null, onChange, ...other } = props;
     function getValue(id: any) {
-        return option.find((val: any) => val.id === id);
+        if (option.length > 0)
+            return option.find((val: any) => val.id === id);
+        return null;
+
     }
 
     return (

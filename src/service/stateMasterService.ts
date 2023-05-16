@@ -1,19 +1,17 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { AxiosError } from "axios";
-import axios from "../api/axios";
-import { authHeader } from "../api/axios";
 import { initialStates } from "../store/reducer/stateMasterSlice";
-import store from "../store/store";
+import { dispatch } from "../store/store";
+import { axiosPrivate } from "../api/axios";
 
 export const stateMaster_GetAll = createAsyncThunk('state/getAll',
     async () => {
         try {
-            return await (await axios.get('/stateMaster', { headers: authHeader() })).data;
+            return await (await axiosPrivate.get('/stateMaster')).data;
         } catch (err: any) {
             throw error(err);
         }
         finally {
-            setTimeout(() => { store.dispatch(initialStates()) }, 3000)
+            setTimeout(() => { dispatch(initialStates()) }, 3000)
         }
     }
 )
