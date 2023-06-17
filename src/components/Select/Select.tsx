@@ -15,8 +15,10 @@ export default function Select(props: any) {
             options={option}
             value={getValue(value)}
             onChange={onChange}
-            getOptionLabel={option => option.label}
-            renderInput={(params) => <TextField {...params} label={label} />}
+            getOptionLabel={(option: any) => option.label}
+            renderInput={(params) => <TextField {...params} label={label}
+                {...(error && { error: true, helperText: error })}
+            />}
         />
     )
 }

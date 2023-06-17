@@ -21,6 +21,7 @@ export const getAllCompanys = createAsyncThunk('company/getAll',
 export const getCompany = createAsyncThunk('company/get',
     async (id: any) => {
         try {
+            console.log("id", id);
             return await (await axiosPrivate.get(`/companyMaster/${id}`)).data;
         }
         catch (err: any) {
@@ -47,7 +48,7 @@ export const createNewCompany = createAsyncThunk('company/createNew',
 )
 
 export const updateCompany = createAsyncThunk('company/Update',
-    async (data:IcompanyMaster) => {
+    async (data: IcompanyMaster) => {
         try {
             return await (await axiosPrivate.put('/companyMaster', data)).data;
         }

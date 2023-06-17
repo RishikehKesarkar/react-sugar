@@ -14,7 +14,7 @@ import { sliceEnum } from '../../common/enum/Enum';
 import { createNewCompany, getCompany, updateCompany } from '../../service/companyMaster-Service';
 import { stateMaster_GetAll } from '../../service/stateMasterService';
 import crypto from '../../common/crypto';
-const CompanyMaster = () => {
+const Company = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
@@ -27,8 +27,9 @@ const CompanyMaster = () => {
             navigate('/', { state: { from: location }, replace: true });
         else if (status == sliceEnum.error)
             toast.error(message)
-        else if (status == sliceEnum.success)
-            toast.success(message);
+        else if (status == sliceEnum.success) {
+            toast.success(message); navigate(-1);
+        }
     }, [status, message])
 
     const handleValidation = yup.object({
@@ -51,8 +52,6 @@ const CompanyMaster = () => {
         enableReinitialize: true,
         validationSchema: handleValidation,
         onSubmit: companydata => {
-            companydata.createdBy = getState().loginUser.data.Id;
-            companydata.updatedBy = getState().loginUser.data.Id;
             const action = (crypto.decrypted(id)) ? updateCompany(companydata) : createNewCompany(companydata);
             dispatch(action);
         }
@@ -66,7 +65,7 @@ const CompanyMaster = () => {
     }, [stateArr])
     useEffect(() => {
         if (crypto.decrypted(id))
-            dispatch(getCompany(id));
+            dispatch(getCompany(crypto.decrypted(id)));
         dispatch(stateMaster_GetAll());
     }, [id])
     return (
@@ -145,7 +144,7 @@ const CompanyMaster = () => {
                         </Grid>
 
                         <Control.Button text="Submit" type="submit" />
-                        <Control.Button text="Back" onClick={() => { navigate("/Home") }} />
+                        <Control.Button text="Back" onClick={() => { navigate(-1) }} />
                     </Grid>
                 </form>
             </Control.Paper>
@@ -153,4 +152,4 @@ const CompanyMaster = () => {
     )
 }
 
-export default adminLayout(CompanyMaster);
+export default adminLayout(Company);

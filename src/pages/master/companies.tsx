@@ -3,7 +3,7 @@ import CustomTable from "../../common/CustomTable";
 import { useState, useEffect } from "react";
 import Control from "../../components";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
-import { getAllCities } from "../../service/cityMaster-Service";
+import { getAllCompanys } from "../../service/companyMaster-Service";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { sliceEnum } from "../../common/enum/Enum";
@@ -13,51 +13,35 @@ import { editClickProps } from "../../interface/props/IhandleClikProps";
 import crypto from "../../common/crypto";
 import { IconButton, Tooltip } from "@mui/material";
 import { imgIcon } from "../../assets/imgIcon";
-import Loader from "../../shared/loader";
+
 
 const headCells: IHeadCell[] = [
     {
-        id: 'cityId',
+        id: 'Id',
         numeric: true,
         disablePadding: true,
         hidden: true,
         label: 'id'
     },
     {
-        id: 'cityName',
+        id: 'companyName',
         numeric: false,
-        label: 'City Name',
-        filter: true
+        disablePadding: false,
+        label: 'company Name',
     },
     {
-        id: 'stateName',
+        id: 'shortName',
         numeric: false,
-        label: 'State Name',
+        disablePadding: false,
+        label: 'short Name',
         filter: true
-    },
-    {
-        id: 'pinCode',
-        numeric: true,
-        label: 'PinCode'
-    },
-
-]
-
-const handleAddClick = (props: any) => {
-    const { navigate } = props;
-    const handleAddClick = () => {
-        navigate(`/city/${crypto.encrypted(null)}`);
     }
-    return <Tooltip title="Add">
-        <IconButton id="Add" onClick={handleAddClick} color='primary' >
-            <imgIcon.AddIcon />
-        </IconButton>
-    </Tooltip>
-}
+];
+
 const handleEditClick = (props: editClickProps) => {
     const { row, navigate } = props;
     const handleEditClick = () => {
-        navigate(`/city/${crypto.encrypted(row.cityId)}`);
+        navigate(`/company/${crypto.encrypted(row.Id)}`);
     }
     return <Tooltip title="edit">
         <IconButton id="edit" onClick={handleEditClick} color='primary' >
@@ -65,16 +49,28 @@ const handleEditClick = (props: editClickProps) => {
         </IconButton>
     </Tooltip>
 }
+const handleAddClick = (props: any) => {
+    const { navigate } = props;
+    const handleAddClick = () => {
+        navigate(`/company/${crypto.encrypted(null)}`);
+    }
+    return <Tooltip title="Add">
+        <IconButton id="Add" onClick={handleAddClick} color='primary' >
+            <imgIcon.AddIcon />
+        </IconButton>
+    </Tooltip>
+}
 
-const CityMasterList = () => {
+const Companies = () => {
     const [filterText, setFilterText] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { cities, message, httpStatus, status } = useSelector((state: RootState) => state.City);
+    const { dataArr, status, httpStatus, message } = useSelector((state: RootState) => state.companyMaster);
+
     useEffect(() => {
-        dispatch(getAllCities())
+        dispatch(getAllCompanys())
     }, [dispatch])
 
     useEffect(() => {
@@ -85,19 +81,16 @@ const CityMasterList = () => {
     }, [status, message])
 
     return (
-        <>
-            <Loader isLoading={status} />
-            <Control.Paper>
-                <Control.GridContainer>
-                    <Control.GridItem>
-                        <Control.Input onChange={(e: any) => { setFilterText(e.target.value) }} />
-                    </Control.GridItem>
-                    <CustomTable tableName="Cities" rows={cities} headCells={headCells}
-                        checkboxRequire={true} tableActions={{ handleAddClick, handleEditClick }} filterText={filterText} actions={true} />
-                </Control.GridContainer>
-            </Control.Paper>
-        </>
+        <Control.Paper>
+            <Control.GridContainer>
+                <Control.GridItem>
+                    <Control.Input onChange={(e: any) => { setFilterText(e.target.value) }} />
+                </Control.GridItem>
+                <CustomTable tableName="Companys" tableActions={{ handleEditClick, handleAddClick }} rows={dataArr} headCells={headCells}
+                    checkboxRequire={true} filterText={filterText} actions={true} />
+            </Control.GridContainer>
+        </Control.Paper>
     )
 }
 
-export default adminLayout(CityMasterList);
+export default adminLayout(Companies);

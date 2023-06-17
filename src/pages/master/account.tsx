@@ -3,7 +3,7 @@ import Control from "../../components";
 import { Grid } from '@mui/material';
 import adminLayout from "../../masterLayout/adminLayout";
 
-const AccountMaster = () => {
+const Account = () => {
     const option = [
         { label: "MH", id: 1 }, { label: "MH1", id: 2 }
     ];
@@ -152,4 +152,4 @@ const AccountMaster = () => {
     )
 }
 
-export default adminLayout(AccountMaster);
+export default adminLayout(Account);

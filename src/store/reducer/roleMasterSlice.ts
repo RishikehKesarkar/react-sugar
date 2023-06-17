@@ -7,14 +7,13 @@ import crypto from "../../common/crypto";
 import { getNativeSelectUtilityClasses } from "@mui/material";
 import TestAuth from "../../hooks/TestAuth";
 
-const userInfo = (sessionStorage.getItem("uinfo")) ? JSON.parse(crypto.decrypted(sessionStorage.getItem("uinfo"))) : getNativeSelectUtilityClasses;
 
 const roleAccessInitial: IroleAccess = {
     Id: 0,
     roleId: 0,
     pages: "",
-    createdBy: userInfo?.userId,
-    updatedBy: userInfo?.userId
+    createdBy: 1,
+    updatedBy: 1
 }
 
 const roleMasterinitial: IroleMaster = {
@@ -22,8 +21,8 @@ const roleMasterinitial: IroleMaster = {
     roleName: "",
     description: "",
     roleAccess: roleAccessInitial,
-    createdBy: userInfo?.userId,
-    updatedBy: userInfo?.userId
+    createdBy: 1,
+    updatedBy: 1
 }
 
 const initialState = {
@@ -59,7 +58,6 @@ const roleMasterSlice = createSlice({
         builder.addCase(getRole.pending, (state) => {
             state.status = sliceEnum.loading;
         }).addCase(getRole.fulfilled, (state, action) => {
-            console.log(action.payload);
             state.data = action.payload;
         }).addCase(getRole.rejected, (state, action) => {
             state.status = sliceEnum.error;

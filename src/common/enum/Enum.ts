@@ -11,4 +11,8 @@ export enum Emessages {
     delete="record deleted successfully",
     error="error occur"
 }
+export enum ERouteType {
+    public=1,
+    private=2
+}
 

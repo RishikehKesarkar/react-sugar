@@ -15,32 +15,40 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { useNavigate, useLocation } from "react-router-dom";
-import useAuth from '../../hooks/useAuth';
 import { Copyright } from '../../shared/Copyright';
 import Loader from '../../shared/loader';
 import { sliceEnum } from '../../common/enum/Enum';
 import { signIn } from '../../service/authService';
-import { getAllRoles } from '../../service/roleMaster-Service';
 import crypto from '../../common/crypto';
+import { checkConnection } from '../../service/checkConnection-Service';
+import { toast } from 'react-toastify';
+import SessionStorage from '../../common/sessionStorage';
+import { getAllMenu } from '../../service/menuMaster-Service';
+import { getSessionUser } from '../../common/commonMethod';
 
 const theme = createTheme();
 
 export default function SignIn() {
-  const { setAuth }: any = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/Home";
-  const { data, status } = useSelector((state: RootState) => state.auth)
-
+  const { data, status, httpStatus } = useSelector((state: RootState) => state.auth);
+  const [disable, setdisable] = React.useState(false);
   React.useEffect(() => {
-    //dispatch(getAllpages())
-  }, [])
-
+    const checkConn = checkConnection().then(res => {
+      setdisable(false);
+    }).catch(errr => { setdisable(true); toast.error(errr.message) });
+  }, [dispatch])
+  React.useEffect(() => {
+    if (httpStatus == '403') {
+      SessionStorage.remove({ name: 'uinfo' });
+    }
+  }, [httpStatus])
   React.useEffect(() => {
     if (status == sliceEnum.success) {
-      dispatch(getAllRoles());
-      sessionStorage.setItem("uinfo", crypto.encrypted(JSON.stringify({ userId: data.userId, user: data.user })));
+      SessionStorage.set({ name: 'uinfo', value: crypto.encryptData(data) })
+      dispatch(getAllMenu(getSessionUser()?.userId));
       navigate(from, { replace: true });
     }
   }, [status])
@@ -104,6 +112,7 @@ export default function SignIn() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={disable}
             >
               Sign In
             </Button>

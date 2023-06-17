@@ -1,14 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { signInExtraReducer } from "../../service/authService";
-import IsignUp from "../../interface/auth/IsignUp";
 import { sliceEnum } from "../../common/enum/Enum";
-import store from "../store";
-import { setLoginUserDetails } from "./loginUserSlice";
 
+const initialVal = { userId: 0, user: '', accessToken: '', roleId: 0, roleAccess: '' }
 const initialState = {
-    data: { userId: 0, user: '', roles: '', accessToken: '' },
+    data: initialVal,
     message: '',
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error
+    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    httpStatus: '' as any
 
 }
 
@@ -19,37 +17,42 @@ const authSlice = createSlice({
         initialAuth: (state, action) => {
             state.status = sliceEnum.idel;
             state.message = '';
+            state.httpStatus = '';
             if (action.payload == "clear")
-                state.data = { userId: 0, user: '', roles: '', accessToken: '' };
+                state.data = initialVal;
         },
         loadingAuth: (state) => {
             state.status = sliceEnum.loading;
         },
         setAuth: (state, action) => {
             state.data = {
-                userId: action.payload.Id, user: action.payload.userName, roles: action.payload.pages,
-                accessToken: action.payload.accessToken
+                userId: action.payload.Id, user: action.payload.userName,
+                accessToken: action.payload.accessToken, roleAccess: action.payload.roleAccess,
+                roleId: action.payload.roleId
+
             };
             state.status = sliceEnum.success;
         },
         errorAuth: (state, action) => {
             state.status = sliceEnum.error;
+            state.httpStatus = action.payload.status;
+            state.message = action.payload.statusText;
 
         }
     },
-    extraReducers: (builder) => {
-        builder.addCase(signInExtraReducer.pending, (state, action) => {
-            state.status = sliceEnum.loading;
-        }).addCase(signInExtraReducer.fulfilled, (state, action) => {
-            state.status = sliceEnum.success;
-            state.data = {
-               userId:0, user: action.payload.userName, roles: action.payload.roleAccess,
-                accessToken: action.payload.accessToken
-            };
-        }).addCase(signInExtraReducer.rejected, (state, action) => {
-            state.status = sliceEnum.error;
-        })
-    }
+    // extraReducers: (builder) => {
+    //     builder.addCase(signInExtraReducer.pending, (state, action) => {
+    //         state.status = sliceEnum.loading;
+    //     }).addCase(signInExtraReducer.fulfilled, (state, action) => {
+    //         state.status = sliceEnum.success;
+    //         state.data = {
+    //            userId:0, user: action.payload.userName, roles: action.payload.roleAccess,
+    //             accessToken: action.payload.accessToken
+    //         };
+    //     }).addCase(signInExtraReducer.rejected, (state, action) => {
+    //         state.status = sliceEnum.error;
+    //     })
+    // }
 })
 
 export const { initialAuth, loadingAuth, setAuth, errorAuth } = authSlice.actions;

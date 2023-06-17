@@ -7,6 +7,7 @@ import companyMasterSlice from "./reducer/companyMasterSlice";
 import pagesSlice from "./reducer/pagesSlice";
 import roleMasterSlice from "./reducer/roleMasterSlice";
 import cityMasterSlice from "./reducer/cityMasterSlice";
+import menuSlice from "./reducer/menuSlice";
 
 const reducer=combineReducers({
     auth:authSlice,
@@ -16,7 +17,8 @@ const reducer=combineReducers({
     pages:pagesSlice,
     roleMaster:roleMasterSlice,
     test:testSlice,
-    City:cityMasterSlice
+    City:cityMasterSlice,
+    menu:menuSlice
 });
 
 export default reducer;

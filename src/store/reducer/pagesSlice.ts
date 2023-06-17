@@ -1,10 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { pageInterface } from "../../Routes/pages";
-import { getAllpages } from "../../service/pageService";
-import { sliceEnum } from "../../common/enum/Enum";
+import { IpageMaster } from "../../interface/Ipage/IpageMaster";
+import { getAllpages, getPage } from "../../service/pageService";
+import { ERouteType, sliceEnum } from "../../common/enum/Enum";
+
+const initialVal: IpageMaster = {
+    Id: 0,
+    path: "",
+    title: "",
+    routeType: Number(ERouteType.public),
+    pageName: 'Select',
+    hidden: 0,
+    menuId: 0,
+    subMenuId: 0
+}
 
 const initialState = {
-    dataArr: [] as pageInterface[],
+    page: initialVal,
+    pages: [] as IpageMaster[],
     message: '' as any,
     status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any,
@@ -13,7 +25,13 @@ const initialState = {
 const pagesSlice = createSlice({
     name: 'pages',
     initialState,
-    reducers: {},
+    reducers: {
+        initialPage: (state) => {
+            state.status = sliceEnum.idel;
+            state.message = '';
+            state.httpStatus = '';
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(getAllpages.pending, (state) => {
             state.status = sliceEnum.loading;
@@ -21,10 +39,27 @@ const pagesSlice = createSlice({
             action.payload.map((item: any) => {
                 item.hidden = item.hidden == 1 ? true : false
             })
-            state.dataArr = action.payload;
+            state.pages = action.payload;
             state.status = sliceEnum.success;
+        }).addCase(getAllpages.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+
+        builder.addCase(getPage.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(getPage.fulfilled, (state, action) => {
+            if (action.payload)
+                state.page = action.payload;
+            else
+                state.page = initialVal;
+        }).addCase(getPage.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
         })
     }
 })
-
+export const { initialPage } = pagesSlice.actions;
 export default pagesSlice.reducer;

@@ -65,7 +65,7 @@ const handleAddClick = (props: any) => {
     </Tooltip>
 }
 
-const RoleMasterList = () => {
+const Roles = () => {
     const [filterText, setFilterText] = useState("");
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '', isLoading: false, onConfirm: () => { } })
     const dispatch = useDispatch();
@@ -99,9 +99,6 @@ const RoleMasterList = () => {
             navigate('/', { state: { from: location }, replace: true });
         else if (status == sliceEnum.error)
             toast.error(message);
-        else if (status == sliceEnum.success) {
-            toast.success(message); navigate(-1);
-        }
     }, [status, message])
 
     return (
@@ -118,4 +115,4 @@ const RoleMasterList = () => {
     )
 }
 
-export default adminLayout(RoleMasterList);
+export default adminLayout(Roles);

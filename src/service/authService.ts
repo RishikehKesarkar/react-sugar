@@ -37,8 +37,8 @@ export const refresh = () => {
       dispatch(setAuth(response));
       dispatch(setLoginUserDetails(response));
     }
-    catch (err) {
-      dispatch(errorAuth(err));
+    catch (err:any) {
+      dispatch(errorAuth(err.response));
     }
     finally {
       setTimeout(() => { dispatch(initialAuth(null)) }, 3000)

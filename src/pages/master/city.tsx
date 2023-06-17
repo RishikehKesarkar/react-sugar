@@ -12,7 +12,7 @@ import { getCity, updateCity } from '../../service/cityMaster-Service';
 import { stateMaster_GetAll } from '../../service/stateMasterService';
 import { sliceEnum } from '../../common/enum/Enum';
 import { toast } from 'react-toastify';
-const CityMaster = () => {
+const City = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -108,4 +108,4 @@ const CityMaster = () => {
     )
 }
 
-export default adminLayout(CityMaster);
+export default adminLayout(City);

@@ -2,7 +2,11 @@ import { Preloader, Bars } from "react-preloader-icon";
 import { sliceEnum } from "../common/enum/Enum";
 import Control from "../components";
 
-const Loader = (props: any) => {
+interface LoaderProps {
+  isLoading: sliceEnum
+}
+
+const Loader = (props: LoaderProps) => {
   const { isLoading } = props;
   return (
     isLoading == sliceEnum.loading ?

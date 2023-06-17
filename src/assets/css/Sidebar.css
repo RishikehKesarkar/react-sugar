@@ -1,0 +1,9 @@
+﻿.sidebar-item.plain {
+    color: black;
+    text-decoration: none;
+}
+
+.sidebar-item.plain:hover {
+    text-decoration: underline;
+}
+

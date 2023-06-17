@@ -1,14 +1,16 @@
 import adminLayout from "../../masterLayout/adminLayout";
 import Loader from "../../shared/loader";
 import Control from "../../components";
-import Cookies from "js-cookie";
-
+import { Box } from "@mui/material";
 const Home = () => {
+    
     return (
-        <Control.Paper>
-            <Loader isLoading={false} />
-            <h2>Hello</h2>
-        </Control.Paper>
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Control.Paper>
+                {/* <Loader isLoading={sliceEnum.} /> */}
+                <h2>Hello</h2>
+            </Control.Paper>
+        </Box>
     )
 }
 

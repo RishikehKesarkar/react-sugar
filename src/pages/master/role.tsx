@@ -5,16 +5,13 @@ import Control from "../../components";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import store, { RootState } from "../../store/store";
+import { RootState, getState } from "../../store/store";
 import { toast } from "react-toastify";
-import { sliceEnum } from "../../common/enum/Enum";
+import { ERouteType, sliceEnum } from "../../common/enum/Enum";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
 import CustomTable from "../../common/CustomTable";
-import pages from "../../Routes/pages";
-import { pageInterface } from "../../Routes/pages";
 import crypto from "../../common/crypto";
 import { createNewRole, getRole, updateRole } from "../../service/roleMaster-Service";
-import { Grid } from "@mui/material";
 
 const headCells: IHeadCell[] = [
     {
@@ -31,12 +28,14 @@ const headCells: IHeadCell[] = [
     },
 ]
 
-const RoleMaster = () => {
+const Role = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const [pageArr, setPageArr] = useState<any>([])
     const { data, status, httpStatus, message } = useSelector((state: RootState) => state.roleMaster);
+    const auth = getState().auth.data;
+    const { pages } = useSelector((state: RootState) => state.pages);
     const { id } = useParams();
 
     useEffect(() => {
@@ -45,7 +44,7 @@ const RoleMaster = () => {
         else if (status == sliceEnum.error)
             toast.error(message)
         else if (status == sliceEnum.success) {
-            toast.success(message); navigate(-1);
+            toast.success(message); navigate('/role');
         }
     }, [status, message])
 
@@ -58,14 +57,14 @@ const RoleMaster = () => {
     const roleAccess = data.roleAccess?.pages;
     let pageArray: any = [];
     useMemo(() => {
-        pages.filter(frows => frows.routeType === 'private').map((page) => {
+        pages.filter(frows => frows.routeType === ERouteType.private).map((page) => {
             var id: any = page.Id?.toString();
             pageArray.push({
                 Id: page.Id,
                 path: page.path, title: page.title,
                 icon: page.icon, component: page.component,
                 hidden: page.hidden, routeType: page.routeType,
-                selected: page.selected = roleAccess?.includes(id) ? true : false
+                selected: (roleAccess?.includes(id)) ? true : false
             })
 
         })
@@ -121,4 +120,4 @@ const RoleMaster = () => {
 
 }
 
-export default adminLayout(RoleMaster);
+export default adminLayout(Role);
