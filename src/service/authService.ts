@@ -18,7 +18,7 @@ export const signIn = (data: any) => {
       dispatch(setLoginUserDetails(response));
     }
     catch (err) {
-      dispatch(errorAuth(err));
+      dispatch(errorAuth(error(err)));
     }
     finally {
       setTimeout(() => { dispatch(initialAuth(null)) }, 3000)
@@ -37,7 +37,7 @@ export const refresh = () => {
       dispatch(setAuth(response));
       dispatch(setLoginUserDetails(response));
     }
-    catch (err:any) {
+    catch (err: any) {
       dispatch(errorAuth(err.response));
     }
     finally {
@@ -46,4 +46,10 @@ export const refresh = () => {
   }
 }
 
-
+const error = (err: any) => {
+  return {
+    code: err.response.status.toString(),
+    name: "Custom",
+    message: err.response.data.message,
+  }
+}

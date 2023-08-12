@@ -21,7 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 import { IHeadCell } from '../interface/tableHead/IHeadCell';
 import { useNavigate } from 'react-router-dom';
-import DialogBox from './dialogBox';
+import { makeStyles } from '@mui/styles';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -67,6 +67,23 @@ const DEFAULT_ORDER = 'asc';
 //const DEFAULT_ORDER_BY = 'calories';
 const DEFAULT_ROWS_PER_PAGE = 5;
 
+const useStyles = makeStyles((theme) => ({
+    tableContainer: {
+        maxWidth: '100%',
+        overflowX: 'auto',
+    },
+    table: {
+        minWidth: 500,
+        tableLayout: 'fixed',
+    },
+    tableHeadCell: {
+        fontWeight: 'bold',
+    },
+    tableSortLabel: {
+        fontWeight: 'bold',
+    },
+}));
+
 interface EnhancedTableProps {
     numSelected: number;
     onRequestSort: (event: React.MouseEvent<unknown>, newOrderBy: any) => void;
@@ -86,7 +103,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     const createSortHandler = (newOrderBy: keyof any) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, newOrderBy);
     };
-
+    const classes = useStyles();
     return (
         <TableHead>
             <TableRow>
@@ -105,19 +122,21 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                 }
                 {headCells.map((headCell) => (
                     <TableCell hidden={headCell.hidden}
-                        key={headCell.id}
+                        key={`tblHeadcell-${headCell.id}`}
                         align={headCell.numeric ? 'right' : 'left'}
                         // padding={headCell.disablePadding ? 'none' : 'normal'}
                         sortDirection={orderBy === headCell.id ? order : false}
+                        className={classes.tableHeadCell}
                     >
-                        <TableSortLabel
+                        <TableSortLabel key={`tblLabel-${headCell.label}`}
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
                             onClick={createSortHandler(headCell.id)}
+                            classes={{ root: classes.tableSortLabel }}
                         >
                             {headCell.label}
                             {orderBy === headCell.id ? (
-                                <Box component="span" sx={visuallyHidden}>
+                                <Box key={`box-${headCell.id}`} component="span" sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                                 </Box>
                             ) : null}
@@ -125,7 +144,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                     </TableCell>
                 ))}
                 {
-                    actions ? <TableCell key="tcactions" align='right'>Action</TableCell> : null
+                    actions ? <TableCell key="tcactions" align='right'
+                        className={classes.tableHeadCell}>Action</TableCell> : null
                 }
             </TableRow>
         </TableHead>
@@ -191,7 +211,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 interface CustomTableProps {
     headCells: IHeadCell[],
     rows: any,
-    tableName: string,
+    tableName?: string,
     checkboxRequire?: boolean,
     filterText?: string | any,
     actions?: boolean,
@@ -211,7 +231,7 @@ function CustomTable(props: CustomTableProps) {
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [paddingHeight, setPaddingHeight] = React.useState(0);
     const navigate = useNavigate();
-
+    const classes = useStyles();
     React.useMemo(() => {
         let newSelected: string[] = [];
         rows.map((row: any) => {
@@ -372,13 +392,14 @@ function CustomTable(props: CustomTableProps) {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} tableName={tableName}
+                <EnhancedTableToolbar numSelected={selected.length} tableName={(tableName) ? tableName : ''}
                     ToolBarActions={tableActions} />
-                <TableContainer>
+                <TableContainer className={classes.tableContainer}>
                     <Table
                         sx={{ minWidth: 750 }}
                         aria-labelledby="tableTitle"
                         size={dense ? 'small' : 'medium'}
+                        className={classes.table}
                     >
                         <EnhancedTableHead
                             numSelected={selected.length}
@@ -409,13 +430,13 @@ function CustomTable(props: CustomTableProps) {
                                                 role="checkbox"
                                                 aria-checked={isItemSelected}
                                                 tabIndex={-1}
-                                                key={row.Id}
+                                                key={`TableRow-${index}`}
                                                 selected={isItemSelected}
                                                 sx={{ cursor: 'pointer' }}
                                             >
                                                 {
-                                                    checkboxRequire ? <TableCell key="tcCkeck" padding="checkbox">
-                                                        <Checkbox
+                                                    checkboxRequire ? <TableCell key={`tcCkeck-${row.Id}`} padding="checkbox">
+                                                        <Checkbox key={`chk-${row.Id}`}
                                                             color="primary"
                                                             onClick={(event) => handleClick(event, row.Id)}
                                                             checked={isItemSelected}
@@ -429,12 +450,12 @@ function CustomTable(props: CustomTableProps) {
                                                 {
                                                     headCells.map((cell, index: any) => {
                                                         const value = row[cell.id];
-                                                        return <TableCell hidden={cell.hidden} key={index} align={cell.numeric ? 'right' : 'left'}>{value}</TableCell>
+                                                        return <TableCell hidden={cell.hidden} key={`tblCell-${index}`} align={cell.numeric ? 'right' : 'left'}>{value}</TableCell>
 
                                                     })
                                                 }
                                                 {
-                                                    actions ? <TableCell key="tcaction" align='right'>
+                                                    actions ? <TableCell key={`tblAction-${row.Id}`} align='right'>
                                                         {tableActions?.handleDeleteClick ? tableActions?.handleDeleteClick({ row, navigate }) : null}
                                                         {tableActions?.handleEditClick ? tableActions?.handleEditClick({ row, navigate }) : null}
                                                     </TableCell> : null
@@ -444,7 +465,7 @@ function CustomTable(props: CustomTableProps) {
                                         );
                                     })
                             }
-                            {paddingHeight > 0 && (
+                            {/* {paddingHeight > 0 && (
                                 <TableRow
                                     style={{
                                         height: paddingHeight,
@@ -452,7 +473,7 @@ function CustomTable(props: CustomTableProps) {
                                 >
                                     <TableCell colSpan={6} />
                                 </TableRow>
-                            )}
+                            )} */}
                         </TableBody>
                     </Table>
                 </TableContainer>

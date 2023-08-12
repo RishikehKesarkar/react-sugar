@@ -9,7 +9,7 @@ import { RootState, getState } from "../../store/store";
 import { toast } from "react-toastify";
 import { ERouteType, sliceEnum } from "../../common/enum/Enum";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
-import CustomTable from "../../common/CustomTable";
+import CustomTable from "../../shared/CustomTable";
 import crypto from "../../common/crypto";
 import { createNewRole, getRole, updateRole } from "../../service/roleMaster-Service";
 

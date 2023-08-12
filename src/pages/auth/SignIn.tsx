@@ -25,7 +25,9 @@ import { toast } from 'react-toastify';
 import SessionStorage from '../../common/sessionStorage';
 import { getAllMenu } from '../../service/menuMaster-Service';
 import { getSessionUser } from '../../common/commonMethod';
-
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { initialAuth } from '../../store/reducer/authSlice';
 const theme = createTheme();
 
 export default function SignIn() {
@@ -33,19 +35,25 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/Home";
-  const { data, status, httpStatus } = useSelector((state: RootState) => state.auth);
+  const { data, status, httpStatus, message } = useSelector((state: RootState) => state.auth);
   const [disable, setdisable] = React.useState(false);
+  const [isLoading, setisLoading] = React.useState(sliceEnum.idle)
   React.useEffect(() => {
     const checkConn = checkConnection().then(res => {
       setdisable(false);
     }).catch(errr => { setdisable(true); toast.error(errr.message) });
   }, [dispatch])
   React.useEffect(() => {
+    setisLoading(sliceEnum.idle);
     if (httpStatus == '403') {
       SessionStorage.remove({ name: 'uinfo' });
+      dispatch(initialAuth(null));
     }
+    else if (httpStatus == '401')
+      toast.error(message)
   }, [httpStatus])
   React.useEffect(() => {
+    console.log("data", data);
     if (status == sliceEnum.success) {
       SessionStorage.set({ name: 'uinfo', value: crypto.encryptData(data) })
       dispatch(getAllMenu(getSessionUser()?.userId));
@@ -53,21 +61,29 @@ export default function SignIn() {
     }
   }, [status])
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+  const initialValues = {
+    user: '',
+    pwd: ''
+  }
+  const handleValidation = yup.object({
+    user: yup.string().required('user name require'),
+    pwd: yup.string().required('password require')
+  })
 
-    const user = data.get('email');
-    const pwd = data.get('password');
-    dispatch(signIn({ user, pwd }));
-    //navigate("/Home");
-  };
-
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
+    validationSchema: handleValidation,
+    onSubmit: credental => {
+      setisLoading(sliceEnum.loading);
+      dispatch(signIn(credental));
+    }
+  })
   return (
     <ThemeProvider theme={theme}>
+      <Loader isLoading={isLoading} />
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        {/* <Loader isLoading={isLoading} /> */}
         <Box
           sx={{
             marginTop: 8,
@@ -82,53 +98,49 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={disable}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+          <form onSubmit={formik.handleSubmit}>
+            <Box>
+              <TextField
+                {...formik.getFieldProps('user')}
+                autoFocus label="email" required
+                fullWidth
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                label="Password"
+                type="password"
+                id="password"
+                {...formik.getFieldProps('pwd')}
+              />
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Remember me"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                disabled={disable}
+              >
+                Sign In
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="#" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href="#" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
+            </Box>
+          </form>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>

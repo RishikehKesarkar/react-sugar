@@ -3,7 +3,6 @@ import CustomTable from "../../shared/CustomTable";
 import { useState, useEffect } from "react";
 import Control from "../../components";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
-import { getAllCities } from "../../service/cityMaster-Service";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { sliceEnum } from "../../common/enum/Enum";
@@ -14,40 +13,32 @@ import crypto from "../../common/crypto";
 import { IconButton, Tooltip } from "@mui/material";
 import { imgIcon } from "../../assets/imgIcon";
 import Loader from "../../shared/loader";
-import ButtonPopup from "../../shared/buttonPopup";
+import { getAllAccounts } from "../../service/accountMaster-Service";
 
 const headCells: IHeadCell[] = [
     {
-        id: 'cityId',
-        numeric: true,
-        disablePadding: true,
-        hidden: true,
-        label: 'id'
-    },
-    {
-        id: 'cityName',
+        id: 'shortName',
         numeric: false,
-        label: 'City Name',
+        label: 'short Name',
         filter: true
     },
     {
-        id: 'stateName',
+        id: 'accountAddress',
         numeric: false,
-        label: 'State Name',
+        label: 'Address',
         filter: true
     },
     {
-        id: 'pinCode',
-        numeric: true,
-        label: 'PinCode'
+        id: 'accountName',
+        numeric: false,
+        label: 'Account Name'
     },
-
 ]
 
 const handleAddClick = (props: any) => {
     const { navigate } = props;
     const handleAddClick = () => {
-        navigate(`/city/${crypto.encrypted(null)}`);
+        navigate(`/account/${crypto.encrypted(null)}`);
     }
     return <Tooltip title="Add">
         <IconButton id="Add" onClick={handleAddClick} color='primary' >
@@ -58,7 +49,7 @@ const handleAddClick = (props: any) => {
 const handleEditClick = (props: editClickProps) => {
     const { row, navigate } = props;
     const handleEditClick = () => {
-        navigate(`/city/${crypto.encrypted(row.cityId)}`);
+        navigate(`/account/${crypto.encrypted(row.accountId)}`);
     }
     return <Tooltip title="edit">
         <IconButton id="edit" onClick={handleEditClick} color='primary' >
@@ -67,15 +58,15 @@ const handleEditClick = (props: editClickProps) => {
     </Tooltip>
 }
 
-const Cities = () => {
+const Accounts = () => {
     const [filterText, setFilterText] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { cities, message, httpStatus, status } = useSelector((state: RootState) => state.City);
+    const { accounts, message, httpStatus, status } = useSelector((state: RootState) => state.account);
     useEffect(() => {
-        dispatch(getAllCities())
+        dispatch(getAllAccounts())
     }, [dispatch])
 
     useEffect(() => {
@@ -94,7 +85,7 @@ const Cities = () => {
                         <Control.Input onChange={(e: any) => { setFilterText(e.target.value) }} />
                     </Control.GridItem>
                     <Control.GridItem></Control.GridItem>
-                    <CustomTable tableName="Cities" rows={cities} headCells={headCells}
+                    <CustomTable tableName="accounts" rows={accounts} headCells={headCells}
                         checkboxRequire={true} tableActions={{ handleAddClick, handleEditClick }} filterText={filterText} actions={true} />
                 </Control.GridContainer>
             </Control.Paper>
@@ -102,4 +93,4 @@ const Cities = () => {
     )
 }
 
-export default adminLayout(Cities);
+export default adminLayout(Accounts);

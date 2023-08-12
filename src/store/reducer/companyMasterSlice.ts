@@ -21,15 +21,15 @@ const initialValue: IcompanyMaster = {
     fssaiNumber: "",
     mobileNumber: 0,
     emailAddress: "",
-    createdBy: getSessionUser()?.userId,
-    updatedBy: getSessionUser()?.userId
+    createdBy: getSessionUser()?.userId || 0,
+    updatedBy: getSessionUser()?.userId || 0
 }
 
 const initialState = {
     data: initialValue,
     dataArr: [] as IcompanyMaster[],
     message: '' as any,
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any,
 }
 
@@ -39,7 +39,7 @@ const companyMasterSlice = createSlice({
     reducers: {
         initialcompanyState: (state) => {
             state.message = '';
-            state.status = sliceEnum.idel;
+            state.status = sliceEnum.idle;
             state.httpStatus = '';
         }
     },

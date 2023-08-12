@@ -17,7 +17,7 @@ const initialState = {
     data: initialval,
     dataArr: [] as IstateMaster[],
     message: '' as any,
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any
 }
 
@@ -27,7 +27,7 @@ const stateMasterSlice = createSlice({
     reducers: {
         initialStates: (state) => {
             state.message = '';
-            state.status = sliceEnum.idel;
+            state.status = sliceEnum.idle;
             state.httpStatus='';
         }
     },

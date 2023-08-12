@@ -1,6 +1,6 @@
 
 export enum sliceEnum {
-    idel=0,
+    idle=0,
     loading,
     success,
     error
@@ -14,5 +14,21 @@ export enum Emessages {
 export enum ERouteType {
     public=1,
     private=2
+}
+export enum EaccountType {
+    Party='P',
+    Supplier='S',
+    Bank='B',
+    Cash='C',
+    Relative='R',
+    Fixed_Assets='F',
+    Interest_Party='I',
+    Income_Expenses='E',
+    Trading='O',
+    Mill='M',
+    Transport='T',
+    Broker='BR',
+    Retail_Party='RP',
+    Cash_Retail_Party='CR'
 }
 

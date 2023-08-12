@@ -1,79 +1,79 @@
-import { sliceEnum } from "../common/enum/Enum";
-import { getState } from "../store/store";
+import React, { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ERouteType, EaccountType, sliceEnum } from "../common/enum/Enum";
+import { stateMaster_GetAll } from "../service/stateMasterService";
+import { RootState } from "../store/store";
+import { getAllMenu } from "../service/menuMaster-Service";
+import { getSessionUser } from "../common/commonMethod";
+import { getAllRoles } from "../service/roleMaster-Service";
+import jsxElement from "../Routes/pages";
+import { getAllCities } from "../service/cityMaster-Service";
+
+export interface IdrpUtil {
+    id: number | string;
+    label: string;
+}
+
+const initialItem: IdrpUtil = { id: 0, label: "Select" };
+
+const useDataArray = (status: sliceEnum | string, dataArr: any[], action: any) => {
+    const dispatch = useDispatch();
+
+    useMemo(() => {
+        if (status !== sliceEnum.error && dataArr.length === 0) {
+            dispatch(action);
+        }
+    }, [status, dataArr, dispatch, action]);
+};
 
 const DrpState = () => {
-    let resultArray = [{ id: 0, label: "Select" }];
-    try {
-        const state = getState().state;
-        if (state.status != sliceEnum.error) {
-            if (state.dataArr.length !== 0) {
-                state.dataArr.map((item) => { resultArray.push({ id: item.Id, label: item.stateName }) });
-            }
-        }
-        return resultArray;
-    }
-    catch (ex) {
-        return resultArray;
-    }
+    const state = useSelector((state: RootState) => state.state);
+    useDataArray(state.status, state.dataArr, stateMaster_GetAll());
+    if (!(state.status !== sliceEnum.error)) return [initialItem];
+    return [initialItem, ...state.dataArr.map((item) => ({ id: item.Id, label: item.stateName }))];
+};
+
+const DrpCity = (stateId: number) => {
+    const city = useSelector((state: RootState) => state.City);
+    useDataArray(city.status, city.cities, getAllCities());
+    if (!(city.status !== sliceEnum.error)) return [initialItem];
+    return [initialItem, ...city.cities.filter((filtercity) => filtercity.stateId == stateId)
+        .map((item) => ({ id: item.cityId, label: item.cityName }))];
 }
 
 const DrpRoles = () => {
-    let resultArray = [{ id: 0, label: "Select" }];
-    try {
-        const role = getState().roleMaster;
-        if (role.status != sliceEnum.error) {
-            if (role.dataArr.length !== 0) {
-                role.dataArr.map((item) => { resultArray.push({ id: item.Id, label: item.roleName }) });
-            }
+    const role = useSelector((state: RootState) => state.roleMaster);
+    useDataArray(role.status, role.dataArr, getAllRoles());
+    if (!(role.status !== sliceEnum.error)) return [initialItem];
+    return [initialItem, ...role.dataArr.map((item) => ({ id: item.Id, label: item.roleName }))];
+};
 
-        }
-        return resultArray;
-    }
-    catch (ex) {
-        return resultArray;
-    }
-}
-
-const DrpMenus = (menuId: number = 0) => {
-    let resultArray = [{ id: 0, label: "Select" }];
-    try {
-        const menu = getState().menu;
-        if (menu.status != sliceEnum.error) {
-            if (menuId == 0) {
-                if (menu.menus.length !== 0) {
-                    menu.menus.map((item) => { resultArray.push({ id: item.menuId, label: item.menuName }) });
-                }
-            }
-            else if (menuId > 0) {
-                const menus = menu.menus.filter(men => men.fMenuId == menuId);
-                if (menus.length !== 0) {
-                    menus.map((item) => { resultArray.push({ id: item.menuId, label: item.menuName }) });
-                }
-            }
-        }
-        return resultArray;
-    }
-    catch (ex) {
-        return resultArray;
-    }
-}
+const DrpMenus = () => {
+    const menu = useSelector((state: RootState) => state.menu);
+    useDataArray(menu.status, menu.menus, getAllMenu(getSessionUser()?.userId));
+    if (!(menu.status !== sliceEnum.error)) return [initialItem];
+    return [initialItem, ...menu.menus.map((item) => ({ id: item.menuId, label: item.menuName }))];
+};
 
 const DrpSubMenu = (MenuId: any) => {
-    let resultArray = [{ id: 0, label: "Select" }];
-    let subMenu;
-    try {
-        if (MenuId > 0 && MenuId != undefined)
-            subMenu = DrpMenus(MenuId);
-        else
-            subMenu = resultArray;
+    const menu = useSelector((state: RootState) => state.menu);
+    const filteredMenus = menu.menus.filter((men) => men.fMenuId === MenuId);
+    if (!(menu.status !== sliceEnum.error)) return [initialItem];
+    return [initialItem, ...filteredMenus.map((item) => ({ id: item.menuId, label: item.menuName }))];
+};
+const DrpPages = () => {
+    const resultArray = [initialItem, ...Object.keys(jsxElement).map(key => ({ id: key, label: key }))];
+    return resultArray;
+};
 
-        return subMenu;
-    }
-    catch (ex) {
-        return resultArray;
-    }
+const DrpRouteType = () => {
+    return Object.entries(ERouteType).filter(([key]) => !isNaN(Number(key)))
+        .map(([id, label]) => ({ id: Number(id), label }));
+};
+
+const DrpaccountType = () => {
+    return Object.entries(EaccountType).map(([label, id]) => ({ id: id, label }));
 }
 
-
-const drp = { DrpState, DrpRoles, DrpMenus, DrpSubMenu };
+const drp = { DrpState, DrpCity, DrpRoles, DrpMenus, DrpSubMenu, DrpPages, DrpRouteType, DrpaccountType };
 export default drp;

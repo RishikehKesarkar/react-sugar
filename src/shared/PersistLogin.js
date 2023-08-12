@@ -1,16 +1,18 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { refresh  } from "../service/authService";
+import { refresh } from "../service/authService";
 import { getAllRoles } from "../service/roleMaster-Service";
 import { getAllMenu } from "../service/menuMaster-Service";
 import { getSessionUser } from "../common/commonMethod";
+import Loader from "./loader";
+import { sliceEnum } from "../common/enum/Enum";
 
 const PersistLogin = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const { data,httpStatus } = useSelector((state) => state.auth);
+    const { data, httpStatus } = useSelector((state) => state.auth);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -51,7 +53,7 @@ const PersistLogin = () => {
             } */}
             {
                 isLoading
-                    ? <p>Loading...</p>
+                    ? <Loader isLoading={sliceEnum.loading} />
                     : <Outlet />
             }
         </>

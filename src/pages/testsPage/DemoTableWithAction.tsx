@@ -12,8 +12,6 @@ const columns: GridColDef[] = [
 
                 const api: GridApi = params.api;
                 //const thisRow: Record<string,1> = {};
-                console.log("param", params.id);
-                console.log("param", params.row);
 
                 // api
                 //   .getAllColumns()

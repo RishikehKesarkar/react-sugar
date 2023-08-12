@@ -18,7 +18,7 @@ const initialState = {
     page: initialVal,
     pages: [] as IpageMaster[],
     message: '' as any,
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any,
 }
 
@@ -27,7 +27,7 @@ const pagesSlice = createSlice({
     initialState,
     reducers: {
         initialPage: (state) => {
-            state.status = sliceEnum.idel;
+            state.status = sliceEnum.idle;
             state.message = '';
             state.httpStatus = '';
         }

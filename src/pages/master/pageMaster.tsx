@@ -1,105 +1,74 @@
-import { useState } from "react";
-import Control from "../../components";
-import adminLayout from "../../masterLayout/adminLayout";
-import drp from "../../utilities/drpUtil";
-import jsxElement from "../../Routes/pages";
-import { ERouteType, sliceEnum } from "../../common/enum/Enum";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import { useFormik } from "formik";
-import { createNewPage, getPage, updatePage } from "../../service/pageService";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 
-const DrpPages = () => {
-    let resultArray = [{ id: "Select", label: "Select" }];
-    const keys = Object.keys(jsxElement);
-    keys.map(key => resultArray.push({ id: key, label: key }));
-
-    return resultArray;
-}
-function isNumber(x: any) {
-    return parseFloat(x) == x
-};
-const DrpRouteType = () => {
-    let resultArray = [];
-    for (var enumMember in ERouteType) {
-        if (isNumber(enumMember)) {
-            resultArray.push({ id: Number(enumMember), label: ERouteType[enumMember] })
-        }
-    }
-    return resultArray;
-}
-const DrpHidden = [
-    { id: 1, label: "true" },
-    { id: 0, label: "false" }
-]
+import Control from "../../components";
+import adminLayout from "../../masterLayout/adminLayout";
+import drp from "../../utilities/drpUtil";
+import { createNewPage, getPage, updatePage } from "../../service/pageService";
+import { RootState } from "../../store/store";
 
 const PageMaster = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { page } = useSelector((state: RootState) => state.pages);
     const handleValidation = yup.object({
-        pageName: yup.string().test('compare pages value', 'select page',
-            function (value: any) {
-                //let value1 = this.parent['pageName'];
-                let value2 = "Select";
-                if (value.toLowerCase() === value2.toLowerCase())
-                    return false;
-                else
-                    return true;
-            },
-        ),
+        pageName: yup.string().test('compare pages value', 'select page', (value: any) => {
+            const value2 = "Select";
+            return value.toLowerCase() !== value2.toLowerCase();
+        }),
         title: yup.string().required('title require'),
         path: yup.string().required('path require'),
-    })
+    });
+
     const formik = useFormik({
         initialValues: page,
         validationSchema: handleValidation,
         enableReinitialize: true,
         onSubmit: pageData => {
-            console.log("pagesData", pageData)
             const action = (pageData.Id === 0 || pageData.Id == null) ? createNewPage(pageData) : updatePage(pageData);
             dispatch(action);
         }
-    })
+    });
+
     const handleChange = (value: any) => {
         if (value !== null) {
             dispatch(getPage(value.id));
-            formik.setFieldValue('pageName', value.id, true);
-            let result;
-            if (page.path === "") {
-                let dashpos = value.id.indexOf("_");
-                if (dashpos > 0)
-                    result = "/".concat(value.id.substring(0, dashpos), '/');
-                else
-                    result = "/".concat(value.id, '/');
-
-                formik.setFieldValue('path', result, true);
-                formik.setFieldValue('pageName', value.id, true);
-            }
+            const result = page.path === "" ? `/${value.id.split('_')[0]}/` : page.path;
+            formik.setFieldValue('pageName', value.id); // Update the field value
+            formik.setFieldValue('path', result); // Update other related field values if needed
         }
+    };
 
-    }
     return (
         <Control.Paper>
             <form onSubmit={formik.handleSubmit}>
                 <Control.GridContainer>
                     <Control.GridItem>
-                        <Control.Select disablePortal label="Pages"
+                        <Control.Select
+                            disablePortal
+                            label="Pages"
                             id="pageName"
                             value={formik.values.pageName}
-                            option={DrpPages()}
-                            onChange={(_: any, value: any) => { handleChange(value) }}
-                            error={formik.errors.pageName}
+                            option={drp.DrpPages()}
+                            onChange={(_: any, value: any) => handleChange(value)}
+                            error={formik.touched.pageName && formik.errors.pageName}
                         />
                     </Control.GridItem>
                     <Control.GridItem>
-                        <Control.Input {...formik.getFieldProps("title")}
-                            error={formik.errors.title} fullWidth label="title" />
+                        <Control.Input
+                            {...formik.getFieldProps("title")}
+                            error={formik.touched.title && formik.errors.title}
+                            fullWidth
+                            label="title"
+                        />
                     </Control.GridItem>
                     <Control.GridItem>
-                        <Control.Select disablePortal label="Main menu"
+                        <Control.Select
+                            disablePortal
+                            label="Main menu"
                             id="menuId"
                             value={formik.values.menuId}
                             option={drp.DrpMenus()}
@@ -109,7 +78,9 @@ const PageMaster = () => {
                         />
                     </Control.GridItem>
                     <Control.GridItem>
-                        <Control.Select disablePortal label="sub menu"
+                        <Control.Select
+                            disablePortal
+                            label="sub menu"
                             id="subMenuId"
                             value={formik.values.subMenuId}
                             option={drp.DrpSubMenu(formik.values.menuId)}
@@ -119,25 +90,32 @@ const PageMaster = () => {
                         />
                     </Control.GridItem>
                     <Control.GridItem>
-                        <Control.Input {...formik.getFieldProps("path")}
-                            error={formik.errors.path} fullWidth label="path" />
+                        <Control.Input
+                            {...formik.getFieldProps("path")}
+                            error={formik.touched.path && formik.errors.path}
+                            fullWidth
+                            label="path"
+                        />
                     </Control.GridItem>
                     <Control.GridItem>
-                        <Control.Select disablePortal label="Route type"
+                        <Control.Select
+                            disablePortal
+                            label="Route type"
                             id="routeType"
                             value={formik.values.routeType}
-                            option={DrpRouteType()}
+                            option={drp.DrpRouteType()}
                             onChange={(_: any, value: any) => {
                                 formik.setFieldValue('routeType', value.id, true);
                             }}
                         />
                     </Control.GridItem>
-
                     <Control.GridItem>
-                        <Control.Select disablePortal label="hidden"
+                        <Control.Select
+                            disablePortal
+                            label="hidden"
                             id="hidden"
                             value={formik.values.hidden}
-                            option={DrpHidden}
+                            option={[{ id: 1, label: "true" }, { id: 0, label: "false" }]}
                             onChange={(_: any, value: any) => {
                                 formik.setFieldValue('hidden', value.id, true);
                             }}
@@ -152,7 +130,7 @@ const PageMaster = () => {
                 </Control.GridContainer>
             </form>
         </Control.Paper>
-    )
-}
+    );
+};
 
 export default adminLayout(PageMaster);

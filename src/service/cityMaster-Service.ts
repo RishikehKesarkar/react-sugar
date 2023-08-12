@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosPrivate } from "../api/axios";
-import { initialCities } from "../store/reducer/cityMasterSlice";
+import { initialCityState } from "../store/reducer/cityMasterSlice";
 import { dispatch, getState } from "../store/store";
 import IcityMaster from "../interface/cityMaster/IcityMaster";
 
@@ -46,9 +46,6 @@ export const createNewCity = createAsyncThunk('city/createNew',
 export const updateCity = createAsyncThunk('city/update',
     async (data: IcityMaster) => {
         try {
-            data.createdBy = getState().auth.data.userId;
-            data.updatedBy = getState().auth.data.userId;
-            console.log("data", data);
             return await (await axiosPrivate.put('/cityMaster', data)).data;
         }
         catch (err: any) {
@@ -61,7 +58,7 @@ export const updateCity = createAsyncThunk('city/update',
 )
 
 const setTimeOut = () => {
-    setTimeout(() => { dispatch(initialCities()) }, 2000)
+    setTimeout(() => { dispatch(initialCityState()) }, 2000)
 }
 const error = (err: any) => {
     return {

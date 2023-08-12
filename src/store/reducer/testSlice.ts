@@ -5,7 +5,7 @@ import store from "../store";
 const initialState = {
     data: { user: '', roles: '', accessToken: '' },
     message: '',
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error
 
 }
 const testSlice = createSlice({

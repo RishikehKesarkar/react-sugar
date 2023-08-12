@@ -33,7 +33,6 @@ export const getRole = createAsyncThunk('role/get',
 
 export const createNewRole = createAsyncThunk('role/createNew',
     async (data: any) => {
-        console.log("createNewRole");
         try {
             return await (await axiosPrivate.post('/roleMaster', data)).data;
         }
@@ -52,7 +51,6 @@ export const updateRole = createAsyncThunk('role/update',
             return await (await axiosPrivate.put('/roleMaster', data)).data;
         }
         catch (err: any) {
-            console.log("err", err);
             throw error(err);
         }
         finally {
@@ -63,12 +61,10 @@ export const updateRole = createAsyncThunk('role/update',
 
 export const deleteRole = createAsyncThunk('role/delete',
     async (id: any) => {
-        console.log("id", id);
         try {
             return await (await axiosPrivate.delete('/roleMaster', { data: { Id: id } })).data;
         }
         catch (err: any) {
-            console.log("err", err);
             throw error(err);
         }
         finally {

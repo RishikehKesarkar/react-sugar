@@ -66,7 +66,6 @@ const Company = () => {
     useEffect(() => {
         if (crypto.decrypted(id))
             dispatch(getCompany(crypto.decrypted(id)));
-        dispatch(stateMaster_GetAll());
     }, [id])
     return (
         <>

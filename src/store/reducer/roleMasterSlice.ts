@@ -29,7 +29,7 @@ const initialState = {
     data: roleMasterinitial,
     dataArr: [] as IroleMaster[],
     message: '' as any,
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any,
 }
 
@@ -39,7 +39,7 @@ const roleMasterSlice = createSlice({
     reducers: {
         initialroleState: (state) => {
             state.message = '';
-            state.status = sliceEnum.idel;
+            state.status = sliceEnum.idle;
             state.httpStatus = '';
         }
     },

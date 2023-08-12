@@ -1,5 +1,5 @@
 import adminLayout from "../../masterLayout/adminLayout";
-import CustomTable from "../../common/CustomTable";
+import CustomTable from "../../shared/CustomTable";
 import { useState, useEffect } from "react";
 import Control from "../../components";
 import { IHeadCell } from "../../interface/tableHead/IHeadCell";
@@ -15,7 +15,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import crypto from "../../common/crypto";
 import { editClickProps, deleteClickProps, addClickProps } from "../../interface/props/IhandleClikProps";
-import DialogBox from "../../common/dialogBox";
+import DialogBox from "../../shared/dialogBox";
 
 const headCells: IHeadCell[] = [
     {

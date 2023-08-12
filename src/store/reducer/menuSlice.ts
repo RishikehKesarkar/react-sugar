@@ -15,7 +15,7 @@ const initialState = {
     menus: [] as ImenuMaster[],
     sideMenus: [] as ImenuMaster[],
     message: '' as any,
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any,
 }
 

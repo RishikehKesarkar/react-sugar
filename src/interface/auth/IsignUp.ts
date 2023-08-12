@@ -11,6 +11,7 @@ export default interface IsignUp extends IcommonField,IsignIn {
     emailAddress:string,
     mobileNumber: number,
     companyId:number,
+    yearId: number,
     comapnyName?:string,
     roleId:number,
     roleName?:string

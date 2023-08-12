@@ -4,6 +4,7 @@ export interface IHeadCell {
     label: string;
     numeric: boolean;
     filter?: boolean;
-    hidden?:boolean;
-    renderCell?:any
+    hidden?: boolean;
+    renderCell?: any,
+    width?: any
 }

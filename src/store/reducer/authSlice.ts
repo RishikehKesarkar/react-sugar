@@ -5,7 +5,7 @@ const initialVal = { userId: 0, user: '', accessToken: '', roleId: 0, roleAccess
 const initialState = {
     data: initialVal,
     message: '',
-    status: 0 as sliceEnum.idel | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
+    status: 0 as sliceEnum.idle | sliceEnum.loading | sliceEnum.success | sliceEnum.error,
     httpStatus: '' as any
 
 }
@@ -15,7 +15,7 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         initialAuth: (state, action) => {
-            state.status = sliceEnum.idel;
+            state.status = sliceEnum.idle;
             state.message = '';
             state.httpStatus = '';
             if (action.payload == "clear")
@@ -35,8 +35,8 @@ const authSlice = createSlice({
         },
         errorAuth: (state, action) => {
             state.status = sliceEnum.error;
-            state.httpStatus = action.payload.status;
-            state.message = action.payload.statusText;
+            state.httpStatus = action.payload.code;
+            state.message = action.payload.message;
 
         }
     },
