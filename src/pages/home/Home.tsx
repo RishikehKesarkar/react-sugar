@@ -6,7 +6,6 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, 
 import Link from '@mui/material/Link';
 import ButtonPopup from '../../shared/buttonPopup';
 import axios from 'axios';
-
 import Draggable from 'react-draggable';
 import { makeStyles } from '@mui/styles';
 
@@ -82,10 +81,15 @@ function Home() {
             <p>IP Address: {ipAddress}</p>
             <button onClick={openPopup}>Open Draggable Popup</button>
 
-            <DraggablePopup isOpen={isPopupOpen} onClose={closePopup}>
+            <DraggablePopup isOpen={isPopupOpen} onClose={closePopup} sx>
+
+            </DraggablePopup>
+            <div style={{ border: '2px solid', padding: '20px', width: '300px', resize: 'both', overflow: 'auto' }}>
                 <h2>Draggable Popup Content</h2>
                 <p>Drag this popup around the screen!</p>
-            </DraggablePopup>
+                <h2>Draggable Popup Content</h2>
+                <p>Drag this popup around the screen!</p>
+            </div>
         </div>
     )
 }
