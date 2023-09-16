@@ -10,7 +10,7 @@ const initialValue: Iaccount = {
     accountId: 0,
     shortName: "",
     accountName: "",
-    acType: 0,
+    acType: 'P',
     acRate: 0,
     accountAddress: "",
     cityId: 0,
@@ -63,8 +63,8 @@ const initialValue: Iaccount = {
     accountContactDetail: [] as IaccountDetail[],
     createdBy: getSessionUser()?.userId || 0,
     updatedBy: getSessionUser()?.userId || 0,
-    createdDate:fDate(),
-    updatedDate:fDate()
+    createdDate: fDate(),
+    updatedDate: fDate()
 }
 const accountDetailInitial: IaccountDetail = {
     Id: 0,

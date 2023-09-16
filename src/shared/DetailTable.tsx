@@ -53,6 +53,7 @@ interface CustomTableProps {
     handleEditClick?: any;
     handleDeleteClick?: any;
     handleAddClick?: any;
+    handleUndoClick?: any;
     getTableValue?: any;
   };
   actions?: boolean;
@@ -60,13 +61,6 @@ interface CustomTableProps {
 
 const DetailTable = ({ headCells, rows, tableActions, actions }: CustomTableProps) => {
   const dispatch = useDispatch();
-  const handleUndoClick = (row: any) => {
-    console.log(row.Id);
-    const foundIndex = rows.findIndex((looprow:any) => looprow === row);
-    const updatedRows = [...rows]; // Create a copy of the rows array
-    updatedRows[foundIndex] = { ...row, detailAction: "N" }; // Modify the copy
-    dispatch(setaccountDetails(updatedRows));
-  }
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       {tableActions?.handleAddClick && tableActions.handleAddClick()}
@@ -82,7 +76,7 @@ const DetailTable = ({ headCells, rows, tableActions, actions }: CustomTableProp
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((row: any, rowindex:any) => (
+              rows.map((row: any, rowindex: any) => (
                 <TableRow hover tabIndex={-1} key={`tblRow-${rowindex}`}>
                   {headCells.map(({ id, numeric }, index) => (
                     <TableCell key={`tblCell-${index}`} align={numeric ? 'right' : 'left'}
@@ -99,11 +93,9 @@ const DetailTable = ({ headCells, rows, tableActions, actions }: CustomTableProp
                         </>
                       )}
                       {row.detailAction === "D" && (
-                        <imgIcon.Tooltip title="Undo">
-                          <imgIcon.IconButton id="Undo" onClick={() => handleUndoClick(row)} color='primary' size="small">
-                            <imgIcon.ReplayIcon />
-                          </imgIcon.IconButton>
-                        </imgIcon.Tooltip>
+                        <>
+                          {tableActions?.handleUndoClick && tableActions.handleUndoClick({ row })}
+                        </>
                       )}
                     </TableCell>
                   )}

@@ -5,7 +5,7 @@ export default interface Iaccount extends IcommonField {
     accountId: number,
     shortName: string,
     accountName: string,
-    acType: number,
+    acType: string,
     acRate: number,
     accountAddress: string,
     cityId: number,

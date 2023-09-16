@@ -1,6 +1,6 @@
 import IcommonField from "../IcommonField";
 
-export default interface IaccountDetail extends IcommonField {
+export default interface accountDetailFiled extends IcommonField {
     Id: number,
     accId: number,
     name: string,

@@ -9,6 +9,9 @@ import roleMasterSlice from "./reducer/roleMasterSlice";
 import cityMasterSlice from "./reducer/cityMasterSlice";
 import menuSlice from "./reducer/menuSlice";
 import accountMasterSlice from "./reducer/accountMasterSlice";
+import gstMasterSlice from "./reducer/gstMasterSlice";
+import purchaseSlice from "./reducer/purchaseSlice";
+import itemMasterSlice from "./reducer/itemMasterSlice";
 
 const reducer = combineReducers({
     auth: authSlice,
@@ -20,7 +23,10 @@ const reducer = combineReducers({
     test: testSlice,
     City: cityMasterSlice,
     menu: menuSlice,
-    account: accountMasterSlice
+    account: accountMasterSlice,
+    gst:gstMasterSlice,
+    purchase:purchaseSlice,
+    item:itemMasterSlice
 });
 
 export default reducer;

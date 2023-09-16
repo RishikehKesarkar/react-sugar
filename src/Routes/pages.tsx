@@ -14,6 +14,7 @@ import PageMaster from "../pages/master/pageMaster";
 import { IpageMaster } from "../interface/Ipage/IpageMaster";
 import accounts from "../pages/master/accounts";
 import purchase from "../pages/inword/purchase";
+import purchases from "../pages/inword/purchases";
 
 const jsxElement = {
     company: Company,
@@ -29,7 +30,8 @@ const jsxElement = {
     account: Account,
     account_list: accounts,
     demogrid: DataGridDemo,
-    purchase: purchase
+    purchase: purchase,
+    purchase_List:purchases
 
 }
 export default jsxElement;

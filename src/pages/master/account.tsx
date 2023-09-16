@@ -49,7 +49,7 @@ const Account = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const drcroption = [
-        { label: "Debit", id: 'd' }, { label: "Credit", id: 'c' }
+        { label: "Debit", id: 'debit' }, { label: "Credit", id: 'credit' }
     ];
     const { accounts, account, status, httpStatus, message } = useSelector((state: RootState) => state.account);
     useEffect(() => {
@@ -124,8 +124,8 @@ const Account = () => {
     const onSubmit = useCallback(
         (account: Iaccount) => {
             console.log("account", account);
-            // const action = (crypto.decrypted(id)) ? updateAccount(account) : createNewAccount(account);
-            // dispatch(action);
+            const action = (crypto.decrypted(id)) ? updateAccount(account) : createNewAccount(account);
+            dispatch(action);
         },
         [dispatch]
     );
@@ -264,7 +264,7 @@ const Account = () => {
                             <Grid xs={12} sm={6} item>
                                 <Control.Select
                                     disablePortal label="DRCR"
-                                    value={formik.values.drcr || 0}
+                                    value={formik.values.drcr || ''}
                                     option={drcroption}
                                     id="drcr"
                                     onChange={(_: any, value: any) => {
@@ -281,7 +281,7 @@ const Account = () => {
                             </Grid>
                             <Grid xs={12} sm={6} item>
                                 <Control.Select disablePortal label="Bank DRCR"
-                                    value={formik.values.bankOpDrcr || 0}
+                                    value={formik.values.bankOpDrcr || ''}
                                     option={drcroption}
                                     id="bankOpDrcr"
                                     onChange={(_: any, value: any) => {

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IpageMaster } from "../../interface/Ipage/IpageMaster";
-import { getAllpages, getPage } from "../../service/pageService";
-import { ERouteType, sliceEnum } from "../../common/enum/Enum";
+import { createNewPage, getAllpages, getPage, updatePage } from "../../service/pageService";
+import { Emessages, ERouteType, sliceEnum } from "../../common/enum/Enum";
 
 const initialVal: IpageMaster = {
     Id: 0,
@@ -59,6 +59,38 @@ const pagesSlice = createSlice({
             state.httpStatus = action.error.code;
             state.message = action.error.message;
         })
+
+        builder.addCase(createNewPage.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(createNewPage.fulfilled, (state, action) => {
+            state.status = sliceEnum.success;
+            state.message = Emessages.success;
+        }).addCase(createNewPage.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+        
+        builder.addCase(updatePage.pending, (state) => {
+            state.status = sliceEnum.loading;
+        }).addCase(updatePage.fulfilled, (state, action) => {
+            state.status = sliceEnum.success;
+            state.message = Emessages.update;
+        }).addCase(updatePage.rejected, (state, action) => {
+            state.status = sliceEnum.error;
+            state.httpStatus = action.error.code;
+            state.message = action.error.message;
+        })
+        // builder.addCase(updatePage.pending, (state) => {
+        //     state.status = sliceEnum.loading;
+        // }).addCase(updatePage.fulfilled, (state, action) => {
+        //     state.status = sliceEnum.success;
+        //     state.message = Emessages.update;
+        // }).addCase(createNewPage.rejected, (state, action) => {
+        //     state.status = sliceEnum.error;
+        //     state.httpStatus = action.error.code;
+        //     state.message = action.error.message;
+        // })
     }
 })
 export const { initialPage } = pagesSlice.actions;

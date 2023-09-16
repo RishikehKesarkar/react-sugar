@@ -27,7 +27,6 @@ export const fToNow = (date: any) => {
 export const fAddDate = (date: any, amount: any, newFormat?: any) => {
     const fm = newFormat || 'dd/MM/yyyy';
     const adddays = addDays(new Date(date), amount);
-    console.log("add", date ? format(new Date(adddays), fm) : '');
     return date ? format(new Date(adddays), fm) : '';
     // return date ? addDays(new Date(date),amount):'';
 }

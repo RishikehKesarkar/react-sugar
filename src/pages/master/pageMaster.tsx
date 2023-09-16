@@ -28,6 +28,7 @@ const PageMaster = () => {
         validationSchema: handleValidation,
         enableReinitialize: true,
         onSubmit: pageData => {
+            console.log("pageData", pageData);
             const action = (pageData.Id === 0 || pageData.Id == null) ? createNewPage(pageData) : updatePage(pageData);
             dispatch(action);
         }

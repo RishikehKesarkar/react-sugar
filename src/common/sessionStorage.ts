@@ -1,3 +1,4 @@
+import store from "../store/store";
 import crypto from "./crypto";
 
 interface getProps {
@@ -15,6 +16,10 @@ const get = (name: getProps) => {
 }
 const remove = (name: getProps) => {
     sessionStorage.removeItem(name.name)
+}
+
+export const TestSession = () => {
+    return store.getState().auth.data?.userId || 0;
 }
 
 const SessionStorage = { set, get, remove };

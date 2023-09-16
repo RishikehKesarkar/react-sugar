@@ -56,13 +56,6 @@ const Company = () => {
             dispatch(action);
         }
     })
-
-    const option = [
-        { label: "MH", id: 1 }, { label: "MH1", id: 2 }
-    ];
-    useEffect(() => {
-        setState(drp.DrpState());
-    }, [stateArr])
     useEffect(() => {
         if (crypto.decrypted(id))
             dispatch(getCompany(crypto.decrypted(id)));
@@ -95,7 +88,7 @@ const Company = () => {
                                     <Control.Select disablePortal label="state"
                                         id="stateId"
                                         value={formik.values.stateId}
-                                        option={states}
+                                        option={drp.DrpState()}
                                         onChange={(_: any, value: any) => {
                                             formik.setFieldValue('stateId', value.id, true);
                                         }}

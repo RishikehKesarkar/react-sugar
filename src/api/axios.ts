@@ -37,11 +37,6 @@ axiosPrivate.interceptors.response.use(response => response, async (error) => {
     return Promise.reject(error);
 });
 
-const authHeader = () => {
-    //const token = sessionStorage.getItem("AccTkn");
-    const token = store.getState().auth.data.accessToken;
-    return { Authorization: `Bearer ${token}` } //document.cookie.split('=')[1]
-}
 
 
 

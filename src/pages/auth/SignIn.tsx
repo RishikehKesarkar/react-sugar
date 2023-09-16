@@ -39,6 +39,7 @@ export default function SignIn() {
   const [disable, setdisable] = React.useState(false);
   const [isLoading, setisLoading] = React.useState(sliceEnum.idle)
   React.useEffect(() => {
+    console.log("DEV_Url", process.env.ACCESS_TOKEN_SECRET);
     const checkConn = checkConnection().then(res => {
       setdisable(false);
     }).catch(errr => { setdisable(true); toast.error(errr.message) });
@@ -53,8 +54,8 @@ export default function SignIn() {
       toast.error(message)
   }, [httpStatus])
   React.useEffect(() => {
-    console.log("data", data);
     if (status == sliceEnum.success) {
+      console.log("data", data);
       SessionStorage.set({ name: 'uinfo', value: crypto.encryptData(data) })
       dispatch(getAllMenu(getSessionUser()?.userId));
       navigate(from, { replace: true });
